@@ -12,7 +12,7 @@ all: $(EXEC)
 
 $(EXEC): $(OBJ)
 	$(CC) -o $@ $^ $(FLAGS) -Lfmod/lib -lfmod
-
+	sudo cp fmod/lib/* /lib
 clean:
 	rm src/*.o
 
