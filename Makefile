@@ -18,3 +18,7 @@ clean:
 
 cleanall: clean
 	rm $(EXEC)
+	sudo rm /lib/libfmod*
+	sudo rm /lib/libfsbank*
+	sudo rm /lib/libfsbvorbis.so
+
