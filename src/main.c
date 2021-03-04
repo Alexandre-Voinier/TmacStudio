@@ -1,4 +1,5 @@
 #include <fmod.h> 
+#include <gtk/gtk.h>
 int main()
 {
     FMOD_SYSTEM *system;
