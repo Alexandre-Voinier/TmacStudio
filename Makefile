@@ -12,13 +12,11 @@ all: $(EXEC)
 
 $(EXEC): $(OBJ)
 	$(CC) -o $@ $^ $(FLAGS) -Lfmod/lib -lfmod
-	sudo cp fmod/lib/* /lib
+	export LD_LIBRARY_PATH=/home/alexandre.voinier/afs/TmacStudio/fmod/lib:$$LD_LIBRARY_PATH
+	@echo "Veuillez executer la derniere fonction manuellement la premiere fois"
 clean:
 	rm src/*.o
 
 cleanall: clean
 	rm $(EXEC)
-	sudo rm /lib/libfmod*
-	sudo rm /lib/libfsbank*
-	sudo rm /lib/libfsbvorbis.so
 
