@@ -1,9 +1,9 @@
 #include <fmod.h> 
-#include <gtk/gtk.h>
 #include <unistd.h>
+#include "../includes/ui.h"
 int main()
 {
-    // Allocates the system pointeur and initialize the library
+   /* // Allocates the system pointeur and initialize the library
     FMOD_SYSTEM *system;
     FMOD_System_Create(&system);
     FMOD_System_Init(system, 2, FMOD_INIT_NORMAL, NULL);
@@ -23,6 +23,6 @@ int main()
     
     // Free the system pointeur
     FMOD_System_Close(system);
-    FMOD_System_Release(system);
-    return 0;
+    FMOD_System_Release(system);*/
+    return ui();
 }
