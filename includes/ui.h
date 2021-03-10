@@ -11,23 +11,42 @@ typedef struct SplashStruct
     GtkWidget *image;
 }SplashStruct;
 
-typedef struct HomeScreen
+typedef struct EditScreen
 {
+    GtkWidget *window;
     GtkWidget *rec_btn;
-}HomeScreen;
+    GtkWidget *stop_btn;
+    GtkWidget *play_btn;
+    GtkWidget *pause_btn;
+}EditScreen;
 
 typedef struct Ui
 {
+    // Default parameters
+    size_t default_width;
+    size_t default_height;
+    
+    // Builder
+    GtkBuilder *builder;
+    guint loading;
+    // Screens
     SplashStruct splash;
+    EditScreen edit;
 }Ui;
 
 // Main Function
 
 int ui();
 
+// Display Functions
+
+void *on_start_up(void *arg);
+void next_step(Ui *appwdgt);
+
 // Init Screen Functions
 
-void init_splash_screen(Ui *appwdgt, GtkBuilder *builder);
+void init_splash_screen(Ui *appwdgt);
+void init_edit_screen(Ui *appwdgt);
 
 // End functions
 
