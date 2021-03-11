@@ -1,4 +1,5 @@
 #include "../includes/ui.h"
+#include "../includes/callbacks.h"
 
 //=============================== Main Function ==============================// 
 
@@ -48,28 +49,67 @@ void next_step(Ui *appwdgt)
 void init_splash_screen(Ui *appwdgt)
 {
     GtkWidget *window;
+    GtkWidget *image;
+
+    // First we get objects
     window = GTK_WIDGET(gtk_builder_get_object(appwdgt->builder, 
 		"SplashScreen"));
+    image = GTK_WIDGET(gtk_builder_get_object(appwdgt->builder,
+		"SplashImage"));
+
+    // Then we connect the signals
     g_signal_connect(window, "destroy", G_CALLBACK(on_window_destroy), NULL);
+
+    // We set the options for each
     gtk_window_set_default_size(GTK_WINDOW(window), appwdgt->default_width,
-	    appwdgt->default_height); 
+	    appwdgt->default_height);
+    int width, height;
+    gtk_window_get_size(GTK_WINDOW(window), &width, &height);
+    GdkPixbuf *pic = gdk_pixbuf_new_from_file_at_scale("UI/splashscreen.png",
+	    width, height, 0, NULL);
+    gtk_image_set_from_pixbuf(GTK_IMAGE(image), pic);
+    // Save the objects in the struct
     appwdgt->splash.window = window;
 }
 
 void init_edit_screen(Ui *appwdgt)
 {
+    // Get the window
     GtkWidget *window;
     window = GTK_WIDGET(gtk_builder_get_object(appwdgt->builder, "EditScreen"));
     g_signal_connect(window, "destroy", G_CALLBACK(on_window_destroy), NULL);
     gtk_window_set_default_size(GTK_WINDOW(window), appwdgt->default_width,
 	    appwdgt->default_height);
     appwdgt->edit.window = window;
+    
+    // Get the btns
+    GtkButton *btn;
+
+    // REC BTN
+    btn = GTK_BUTTON(gtk_builder_get_object(appwdgt->builder, "rec_btn"));
+    appwdgt->edit.rec_btn = btn;
+
+    // STOP BTN
+    btn = GTK_BUTTON(gtk_builder_get_object(appwdgt->builder, "stop_btn"));
+    appwdgt->edit.stop_btn = btn;
+
+    // PLAY BTN
+    btn = GTK_BUTTON(gtk_builder_get_object(appwdgt->builder, "play_btn"));
+    g_signal_connect(btn, "clicked", G_CALLBACK(on_play_btn_clicked), appwdgt);
+    appwdgt->edit.play_btn = btn;
+
+    // PAUSE BTN
+    btn = GTK_BUTTON(gtk_builder_get_object(appwdgt->builder, "pause_btn"));
+    appwdgt->edit.pause_btn = btn;
+
+    // Get the menuitem
+    GtkMenuItem *menuitm;
+
+    // QUIT MENUITEM
+    menuitm = GTK_MENU_ITEM(gtk_builder_get_object(appwdgt->builder,
+		"quit_menuitm2"));
+    g_signal_connect(menuitm, "activate", G_CALLBACK(on_window_destroy), NULL);
+
 }
 
-//============================== End Functions ===============================//
-
-void on_window_destroy()
-{
-    gtk_main_quit();
-}
 

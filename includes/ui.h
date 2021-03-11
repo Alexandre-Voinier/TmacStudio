@@ -8,16 +8,15 @@
 typedef struct SplashStruct
 {
     GtkWidget *window;
-    GtkWidget *image;
 }SplashStruct;
 
 typedef struct EditScreen
 {
     GtkWidget *window;
-    GtkWidget *rec_btn;
-    GtkWidget *stop_btn;
-    GtkWidget *play_btn;
-    GtkWidget *pause_btn;
+    GtkButton *rec_btn;
+    GtkButton *stop_btn;
+    GtkButton *play_btn;
+    GtkButton *pause_btn;
 }EditScreen;
 
 typedef struct Ui
