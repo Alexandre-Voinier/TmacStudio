@@ -1,5 +1,4 @@
 #include "../includes/callbacks.h"
-#include "../includes/musique.h"
 #include "../includes/ui.h"
 #include <fmod.h>
 
@@ -12,7 +11,7 @@ void on_play_btn_clicked(GtkButton *btn, Ui *appwdgt)
     g_print("C'est parti on va jouer le son\n");
     Play(appwdgt->mus);
 }
-
+s
 void on_pause_btn_clicked(GtkButton *btn, Ui *appwdgt)
 {
 	Pause(appwdgt->mus);

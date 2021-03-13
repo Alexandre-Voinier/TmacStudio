@@ -4,7 +4,7 @@
 #include <gtk/gtk.h>
 
 #include <fmod.h>
-#include "musique.h"
+
 
 // Structures
 
@@ -59,4 +59,22 @@ void init_musStruct(Ui *appwdgt);
 // End functions
 
 void on_window_destroy();
+
+// musique.h
+
+typedef struct MusStruct
+{
+        FMOD_SYSTEM *system;
+        FMOD_SOUND *musique;
+
+}MusStruct;
+
+//Fonctions
+
+void Load(Ui *appwdgt, char* musique);
+
+void Play(Ui *appwdgt);
+
+void Pause(Ui *appwdgt);
+
 #endif

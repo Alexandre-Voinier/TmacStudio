@@ -2,7 +2,7 @@
 #define MUSIQUE_H
 
 #include <fmod.h>
-#include "ui.h"
+#include "../includes/ui.h"
 
 //Structure
 

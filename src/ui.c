@@ -128,5 +128,6 @@ void init_musStruct(Ui *appwdgt)
 	FMOD_System_Init(systemNew, 2, FMOD_INIT_NORMAL, NULL);
 	g_print("system initialisé\n");
 	appwdgt->mus.system = systemNew;
+  appwdgt->mus.musique = NULL;
 }
 
