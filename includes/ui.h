@@ -22,6 +22,14 @@ typedef struct EditScreen
     GtkButton *pause_btn;
 }EditScreen;
 
+typedef struct MusStruct
+{
+        FMOD_SYSTEM *system;
+        FMOD_SOUND *musique;
+
+}MusStruct;
+
+
 typedef struct Ui
 {
     // Default parameters
@@ -61,14 +69,6 @@ void init_musStruct(Ui *appwdgt);
 void on_window_destroy();
 
 // musique.h
-
-typedef struct MusStruct
-{
-        FMOD_SYSTEM *system;
-        FMOD_SOUND *musique;
-
-}MusStruct;
-
 //Fonctions
 
 void Load(Ui *appwdgt, char* musique);

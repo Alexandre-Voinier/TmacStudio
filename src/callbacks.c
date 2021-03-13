@@ -7,14 +7,14 @@
 
 void on_play_btn_clicked(GtkButton *btn, Ui *appwdgt)
 {
-    Load(appwdgt->mus, "test.mp3");
+    Load(appwdgt, "test.mp3");
     g_print("C'est parti on va jouer le son\n");
-    Play(appwdgt->mus);
+    Play(appwdgt);
 }
-s
+
 void on_pause_btn_clicked(GtkButton *btn, Ui *appwdgt)
 {
-	Pause(appwdgt->mus);
+	Pause(appwdgt);
 }
 
 //============================= End Function =================================//
