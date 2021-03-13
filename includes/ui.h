@@ -3,6 +3,9 @@
 
 #include <gtk/gtk.h>
 
+#include <fmod.h>
+#include "musique.h"
+
 // Structures
 
 typedef struct SplashStruct
@@ -31,6 +34,8 @@ typedef struct Ui
     // Screens
     SplashStruct splash;
     EditScreen edit;
+
+    MusStruct mus;
 }Ui;
 
 // Main Function
@@ -46,6 +51,10 @@ void next_step(Ui *appwdgt);
 
 void init_splash_screen(Ui *appwdgt);
 void init_edit_screen(Ui *appwdgt);
+
+// Init MusStruct
+
+void init_musStruct(Ui *appwdgt);
 
 // End functions
 

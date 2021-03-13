@@ -6,6 +6,7 @@
 //=============================== EDIT SCREEN ================================//
 
 void on_play_btn_clicked(GtkButton *btn, Ui *appwdgt);
+void on_pause_btn_clicked(GtkButton *btn, Ui *appwdgt);
 
 //================================ End Function ==============================//
 

@@ -1,6 +1,8 @@
 #include "../includes/ui.h"
 #include "../includes/callbacks.h"
 
+#include <fmod.h>
+
 //=============================== Main Function ==============================// 
 
 int ui()
@@ -20,6 +22,11 @@ int ui()
 
 
     // When the program stops we free the structures
+
+    FMOD_System_Close(appwdgt->mus.system);
+    FMOD_System_Release(appwdgt->mus.system);
+    FMOD_Sound_Release(appwdgt->mus.musique);
+
     free(appwdgt);
 
     return 0;
@@ -39,6 +46,7 @@ void *on_start_up(void *arg)
 void next_step(Ui *appwdgt)
 {
     g_source_remove(appwdgt->loading);
+    init_musStruct(appwdgt);
     init_edit_screen(appwdgt);
     gtk_widget_show_all(appwdgt->edit.window);
     gtk_widget_hide(appwdgt->splash.window);
@@ -101,6 +109,7 @@ void init_edit_screen(Ui *appwdgt)
     // PAUSE BTN
     btn = GTK_BUTTON(gtk_builder_get_object(appwdgt->builder, "pause_btn"));
     appwdgt->edit.pause_btn = btn;
+    g_signal_connect(btn, "clicked", G_CALLBACK(on_pause_btn_clicked), appwdgt);
 
     // Get the menuitem
     GtkMenuItem *menuitm;
@@ -112,4 +121,12 @@ void init_edit_screen(Ui *appwdgt)
 
 }
 
+void init_musStruct(Ui *appwdgt)
+{
+	FMOD_SYSTEM *systemNew;
+	FMOD_System_Create(&systemNew);
+	FMOD_System_Init(systemNew, 2, FMOD_INIT_NORMAL, NULL);
+	g_print("system initialisé\n");
+	appwdgt->mus.system = systemNew;
+}
 
