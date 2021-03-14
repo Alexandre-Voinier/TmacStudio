@@ -27,7 +27,6 @@ void Load(Ui *appwdgt, char* musique)
 		g_print("Couldn't load the sound\n");
 	else
 	{
-		appwdgt->mus.name = musique;
 		appwdgt->mus.musique = musi;
 		appwdgt->mus.is_paused = 0;
 		gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.play_btn), TRUE);
