@@ -1,6 +1,8 @@
 #include "../includes/ui.h"
 #include "../includes/callbacks.h"
 
+#include <fmod.h>
+
 //=============================== Main Function ==============================// 
 
 int ui()
@@ -18,8 +20,12 @@ int ui()
 
     gtk_main();
 
-
     // When the program stops we free the structures
+
+    FMOD_Sound_Release(appwdgt->mus.musique);
+    FMOD_System_Close(appwdgt->mus.system);
+    FMOD_System_Release(appwdgt->mus.system);
+
     free(appwdgt);
 
     return 0;
@@ -40,6 +46,7 @@ void next_step(Ui *appwdgt)
 {
     g_source_remove(appwdgt->loading);
     init_edit_screen(appwdgt);
+    init_musStruct(appwdgt);
     gtk_widget_show_all(appwdgt->edit.window);
     gtk_widget_hide(appwdgt->splash.window);
 }
@@ -101,9 +108,20 @@ void init_edit_screen(Ui *appwdgt)
     // PAUSE BTN
     btn = GTK_BUTTON(gtk_builder_get_object(appwdgt->builder, "pause_btn"));
     appwdgt->edit.pause_btn = btn;
+    g_signal_connect(btn, "clicked", G_CALLBACK(on_pause_btn_clicked), appwdgt);
 
     // Get the menuitem
     GtkMenuItem *menuitm;
+
+    //OPEN MENUITEM
+    menuitm = GTK_MENU_ITEM(gtk_builder_get_object(appwdgt->builder,
+                "open_menuitm2"));
+    g_signal_connect(menuitm, "activate", G_CALLBACK(on_open_btn_activated), appwdgt);
+
+    //NEW MENUITEM
+    menuitm = GTK_MENU_ITEM(gtk_builder_get_object(appwdgt->builder,
+                "new_menuitm2"));
+    g_signal_connect(menuitm, "activate", G_CALLBACK(on_new_btn_activated), appwdgt);
 
     // QUIT MENUITEM
     menuitm = GTK_MENU_ITEM(gtk_builder_get_object(appwdgt->builder,
@@ -112,4 +130,16 @@ void init_edit_screen(Ui *appwdgt)
 
 }
 
+void init_musStruct(Ui *appwdgt)
+{
+	FMOD_SYSTEM *systemNew;
+	FMOD_System_Create(&systemNew);
+	FMOD_System_Init(systemNew, 2, FMOD_INIT_NORMAL, NULL);
+	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.play_btn), FALSE);
+        gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.pause_btn), FALSE);
+	appwdgt->mus.system = systemNew;
+  	appwdgt->mus.musique = NULL;
+	appwdgt->mus.is_paused = 0;
+
+}
 

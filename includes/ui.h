@@ -3,6 +3,8 @@
 
 #include <gtk/gtk.h>
 
+#include <fmod.h>
+
 // Structures
 
 typedef struct SplashStruct
@@ -17,7 +19,16 @@ typedef struct EditScreen
     GtkButton *stop_btn;
     GtkButton *play_btn;
     GtkButton *pause_btn;
+    GtkButton *replay_btn;
 }EditScreen;
+
+typedef struct MusStruct
+{
+        FMOD_SYSTEM *system;
+        FMOD_SOUND *musique;
+	int is_paused;
+}MusStruct;
+
 
 typedef struct Ui
 {
@@ -31,6 +42,8 @@ typedef struct Ui
     // Screens
     SplashStruct splash;
     EditScreen edit;
+
+    MusStruct mus;
 }Ui;
 
 // Main Function
@@ -47,7 +60,21 @@ void next_step(Ui *appwdgt);
 void init_splash_screen(Ui *appwdgt);
 void init_edit_screen(Ui *appwdgt);
 
+// Init MusStruct
+
+void init_musStruct(Ui *appwdgt);
+
 // End functions
 
 void on_window_destroy();
+
+// musique.h
+//Fonctions
+
+void Load(Ui *appwdgt, char* musique);
+
+void Play(Ui *appwdgt);
+
+void Pause(Ui *appwdgt);
+
 #endif
