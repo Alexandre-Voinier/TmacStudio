@@ -5,7 +5,6 @@
 
 #include <fmod.h>
 
-
 // Structures
 
 typedef struct SplashStruct
@@ -20,13 +19,14 @@ typedef struct EditScreen
     GtkButton *stop_btn;
     GtkButton *play_btn;
     GtkButton *pause_btn;
+    GtkButton *replay_btn;
 }EditScreen;
 
 typedef struct MusStruct
 {
         FMOD_SYSTEM *system;
         FMOD_SOUND *musique;
-
+	int is_paused;
 }MusStruct;
 
 

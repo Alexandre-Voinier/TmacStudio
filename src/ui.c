@@ -20,12 +20,11 @@ int ui()
 
     gtk_main();
 
-
     // When the program stops we free the structures
 
+    FMOD_Sound_Release(appwdgt->mus.musique);
     FMOD_System_Close(appwdgt->mus.system);
     FMOD_System_Release(appwdgt->mus.system);
-    FMOD_Sound_Release(appwdgt->mus.musique);
 
     free(appwdgt);
 
@@ -46,8 +45,8 @@ void *on_start_up(void *arg)
 void next_step(Ui *appwdgt)
 {
     g_source_remove(appwdgt->loading);
-    init_musStruct(appwdgt);
     init_edit_screen(appwdgt);
+    init_musStruct(appwdgt);
     gtk_widget_show_all(appwdgt->edit.window);
     gtk_widget_hide(appwdgt->splash.window);
 }
@@ -114,6 +113,16 @@ void init_edit_screen(Ui *appwdgt)
     // Get the menuitem
     GtkMenuItem *menuitm;
 
+    //OPEN MENUITEM
+    menuitm = GTK_MENU_ITEM(gtk_builder_get_object(appwdgt->builder,
+                "open_menuitm2"));
+    g_signal_connect(menuitm, "activate", G_CALLBACK(on_open_btn_activated), appwdgt);
+
+    //NEW MENUITEM
+    menuitm = GTK_MENU_ITEM(gtk_builder_get_object(appwdgt->builder,
+                "new_menuitm2"));
+    g_signal_connect(menuitm, "activate", G_CALLBACK(on_new_btn_activated), appwdgt);
+
     // QUIT MENUITEM
     menuitm = GTK_MENU_ITEM(gtk_builder_get_object(appwdgt->builder,
 		"quit_menuitm2"));
@@ -126,8 +135,11 @@ void init_musStruct(Ui *appwdgt)
 	FMOD_SYSTEM *systemNew;
 	FMOD_System_Create(&systemNew);
 	FMOD_System_Init(systemNew, 2, FMOD_INIT_NORMAL, NULL);
-	g_print("system initialisé\n");
+	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.play_btn), FALSE);
+        gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.pause_btn), FALSE);
 	appwdgt->mus.system = systemNew;
-  appwdgt->mus.musique = NULL;
+  	appwdgt->mus.musique = NULL;
+	appwdgt->mus.is_paused = 0;
+
 }
 
