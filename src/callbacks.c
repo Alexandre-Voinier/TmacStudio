@@ -51,9 +51,18 @@ void on_pause_btn_clicked(GtkButton *btn, Ui *appwdgt)
 	Pause(appwdgt);
 }
 
+void on_rec_btn_clicked(GtkButton *btn, Ui *appwdgt)
+{
+	RecordStart(appwdgt);
+}
+
+void on_stop_btn_clicked(GtkButton *btn, Ui *appwdgt)
+{
+	RecordStop(appwdgt);
+}
+
 //============================= End Function =================================//
 void on_window_destroy()
 {
     gtk_main_quit();
 }
-
