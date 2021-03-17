@@ -77,4 +77,8 @@ void Play(Ui *appwdgt);
 
 void Pause(Ui *appwdgt);
 
+void RecordStart(Ui *appwdgt);
+
+void RecordStop(Ui *appwdgt);
+
 #endif

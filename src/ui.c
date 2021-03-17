@@ -110,6 +110,16 @@ void init_edit_screen(Ui *appwdgt)
     appwdgt->edit.pause_btn = btn;
     g_signal_connect(btn, "clicked", G_CALLBACK(on_pause_btn_clicked), appwdgt);
 
+    // REC BTN
+    btn = GTK_BUTTON(gtk_builder_get_object(appwdgt->builder, "rec_btn"));
+    g_signal_connect(btn, "clicked", G_CALLBACK(on_rec_btn_clicked), appwdgt);
+    appwdgt->edit.rec_btn = btn;
+
+    // STOP BTN
+    btn = GTK_BUTTON(gtk_builder_get_object(appwdgt->builder, "stop_btn"));
+    g_signal_connect(btn, "clicked", G_CALLBACK(on_stop_btn_clicked), appwdgt);
+    appwdgt->edit.stop_btn = btn;
+
     // Get the menuitem
     GtkMenuItem *menuitm;
 
@@ -135,8 +145,11 @@ void init_musStruct(Ui *appwdgt)
 	FMOD_SYSTEM *systemNew;
 	FMOD_System_Create(&systemNew);
 	FMOD_System_Init(systemNew, 2, FMOD_INIT_NORMAL, NULL);
+
 	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.play_btn), FALSE);
         gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.pause_btn), FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.rec_btn), TRUE);
+	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.stop_btn), FALSE);
 	appwdgt->mus.system = systemNew;
   	appwdgt->mus.musique = NULL;
 	appwdgt->mus.is_paused = 0;
