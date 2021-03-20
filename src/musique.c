@@ -19,6 +19,8 @@ void Load(Ui *appwdgt, char* musique)
 			FMOD_ChannelGroup_SetPaused(canal, 0);
 		}
 	}
+	else
+		Attach(appwdgt);
 
 	result = FMOD_System_CreateSound(appwdgt->mus.system, musique, FMOD_CREATESTREAM, 0, &(musi));
 	if (result != FMOD_OK)
@@ -36,7 +38,7 @@ void Load(Ui *appwdgt, char* musique)
 
 void Play(Ui *appwdgt)
 {
-	if (appwdgt->mus.musique != NULL)
+	if (appwdgt->mus.musique != NULL && !appwdgt->mus.is_paused)
 	{	
 		FMOD_System_PlaySound(appwdgt->mus.system, appwdgt->mus.musique, 0, 0, NULL);
 	}
@@ -73,6 +75,8 @@ void RecordStart(Ui *appwdgt)
                         FMOD_ChannelGroup_SetPaused(canal, 0);
                 }
         }
+	else
+		Attach(appwdgt);
 
 	FMOD_CREATESOUNDEXINFO exinfo;
 	memset(&exinfo, 0, sizeof(FMOD_CREATESOUNDEXINFO));
@@ -118,12 +122,32 @@ void RecordStop(Ui *appwdgt)
     	g_print("%d", appwdgt->mus.musique == NULL);
 }
 
-/*void Volume(float scale, MusStruct mus)
+void Attach(Ui *appwdgt)
 {
-	FMOD_CHANNEL *canal;
-	FMOD_System_GetMasterChannelGroup(mus.system, &canal);
-	float result = scale*255;
-	FMOD_Channel_SetVolume(canal, result);
+	GtkWidget *new = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+
+	GtkWidget *slider = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0, 1, 0.01);
+	g_signal_connect(slider, "value_changed", G_CALLBACK(Volume), appwdgt);
+
+	GtkWidget *draw = gtk_drawing_area_new();
+
+	gtk_box_pack_start(GTK_BOX(new), draw, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(new), slider, TRUE, TRUE, 0);
+
+	gtk_box_pack_start(appwdgt->edit.grille, new, FALSE, FALSE, 0);
+	FMOD_CHANNELGROUP *canal;
+        FMOD_System_GetMasterChannelGroup(appwdgt->mus.system, &canal);
+        FMOD_ChannelGroup_SetVolume(canal, 0);
+
+	gtk_widget_show_all(GTK_WIDGET(appwdgt->edit.window));
 }
-*/
+
+void Volume(GtkWidget *slider, Ui *appwdgt)
+{
+	float value = gtk_range_get_value(GTK_RANGE(slider)); 
+	FMOD_CHANNELGROUP *canal;
+	FMOD_System_GetMasterChannelGroup(appwdgt->mus.system, &canal);
+	FMOD_ChannelGroup_SetVolume(canal, value);
+}
+
 
