@@ -138,6 +138,16 @@ void init_edit_screen(Ui *appwdgt)
 		"quit_menuitm2"));
     g_signal_connect(menuitm, "activate", G_CALLBACK(on_window_destroy), NULL);
 
+    //GETTING THE BOXS
+    GtkBox *box;
+
+    box = GTK_BOX(gtk_builder_get_object(appwdgt->builder,
+                "grilleG"));
+    appwdgt->edit.grilleG = box;
+
+    box = GTK_BOX(gtk_builder_get_object(appwdgt->builder,
+                "grille"));
+    appwdgt->edit.grille = box;
 }
 
 void init_musStruct(Ui *appwdgt)

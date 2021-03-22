@@ -11,6 +11,12 @@ void on_new_btn_activated(GtkMenuItem *btn, Ui *appwdgt)
 		FMOD_Sound_Release(appwdgt->mus.musique);
 		FMOD_System_Close(appwdgt->mus.system);
     		FMOD_System_Release(appwdgt->mus.system);
+
+		gtk_widget_destroy(GTK_WIDGET(appwdgt->edit.grille));
+		GtkWidget *new1 = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+		gtk_box_pack_start(appwdgt->edit.grilleG, new1, FALSE, FALSE, 0);
+		appwdgt->edit.grille = GTK_BOX(new1);
+
 		init_musStruct(appwdgt);
 	}
 }
