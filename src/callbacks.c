@@ -47,6 +47,52 @@ void on_open_btn_activated(GtkMenuItem *btn, Ui *appwdgt)
         gtk_widget_destroy (dialog);
 }
 
+void on_save_btn_activated(GtkMenuItem *btn, Ui *appwdgt)
+{
+	if (appwdgt->mus.musique != NULL)
+        {
+                GtkWidget *dialog;
+                GtkFileChooser *chooser;
+                GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_SAVE;
+                gint res;
+
+                dialog = gtk_file_chooser_dialog_new ("Save File",
+                                      GTK_WINDOW(appwdgt->edit.window),
+                                      action,
+                                      ("_Cancel"),
+                                      GTK_RESPONSE_CANCEL,
+                                      ("_Save"),
+                                      GTK_RESPONSE_ACCEPT,
+                                      NULL);
+                chooser = GTK_FILE_CHOOSER (dialog);
+
+                gtk_file_chooser_set_do_overwrite_confirmation (chooser, TRUE);
+
+                gtk_file_chooser_set_current_name (chooser,
+                                     ("record.wav"));
+
+                res = gtk_dialog_run (GTK_DIALOG (dialog));
+                if (res == GTK_RESPONSE_ACCEPT)
+                {
+                        char *filename;
+                        filename = gtk_file_chooser_get_filename (chooser);
+                        
+			FILE *fp = fopen(filename, "wb");
+    			if (!fp)
+    			{
+        			printf("ERROR : could not open the file for writing.\n");
+    			}
+			else
+				WriteWavHeader(fp, appwdgt->mus.musique, 0);
+
+                        g_free (filename);
+                }
+
+                gtk_widget_destroy (dialog);
+        }
+
+}
+
 void on_play_btn_clicked(GtkButton *btn, Ui *appwdgt)
 {
 	Play(appwdgt);

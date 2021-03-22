@@ -12,7 +12,7 @@ all: $(EXEC)
 
 $(EXEC): $(OBJ)
 	$(CC) -o $@ $^ $(FLAGS) -Lfmod/lib -lfmod
-	export LD_LIBRARY_PATH=/home/alexandre.voinier/afs/TmacStudio/fmod/lib:$$LD_LIBRARY_PATH
+	export LD_LIBRARY_PATH=/home/poingt/Bureau/TmacStudio/fmod/lib:$$LD_LIBRARY_PATH
 	@echo "Veuillez executer la derniere fonction manuellement la premiere fois"
 	@echo "Pensez à changer le path vers /fmod/lib"
 clean:

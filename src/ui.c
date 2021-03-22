@@ -138,6 +138,10 @@ void init_edit_screen(Ui *appwdgt)
 		"quit_menuitm2"));
     g_signal_connect(menuitm, "activate", G_CALLBACK(on_window_destroy), NULL);
 
+    menuitm = GTK_MENU_ITEM(gtk_builder_get_object(appwdgt->builder,
+                "save_menuitm2"));
+    g_signal_connect(menuitm, "activate", G_CALLBACK(on_save_btn_activated), NULL);
+
     //GETTING THE BOXS
     GtkBox *box;
 

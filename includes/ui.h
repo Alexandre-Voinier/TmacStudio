@@ -86,4 +86,7 @@ void RecordStop(Ui *appwdgt);
 void Attach(Ui *appwdgt);
 
 void Volume(GtkWidget *slider, Ui *appwdgt);
+
+void WriteWavHeader(FILE *fp, FMOD_SOUND *sound, int length);
+
 #endif

@@ -38,8 +38,16 @@ void Load(Ui *appwdgt, char* musique)
 
 void Play(Ui *appwdgt)
 {
-	if (appwdgt->mus.musique != NULL && !appwdgt->mus.is_paused)
-	{	
+	FMOD_CHANNELGROUP *canal;
+        FMOD_System_GetMasterChannelGroup(appwdgt->mus.system, &canal);
+
+	if (appwdgt->mus.musique != NULL)
+	{
+		if (appwdgt->mus.is_paused)
+		{
+			FMOD_ChannelGroup_SetPaused(canal, 0);
+                	appwdgt->mus.is_paused = 0;
+		}	
 		FMOD_System_PlaySound(appwdgt->mus.system, appwdgt->mus.musique, 0, 0, NULL);
 	}
 }
@@ -150,4 +158,67 @@ void Volume(GtkWidget *slider, Ui *appwdgt)
 	FMOD_ChannelGroup_SetVolume(canal, value);
 }
 
+void WriteWavHeader(FILE *fp, FMOD_SOUND *sound, int length)
+{
+	int             channels, bits;
+    	float           rate;
+
+    	if (!sound)
+    	{
+        	return;
+    	}
+
+    	fseek(fp, 0, SEEK_SET);
+
+    	sound->getFormat  (0, 0, &channels, &bits);
+    	sound->getDefaults(&rate, 0, 0, 0);
+
+    	{
+       		#if defined(WIN32) || defined(_WIN64) || defined(__WATCOMC__) || defined(_WIN32) || defined(__WIN32__)
+        	#pragma pack(1)
+        	#endif
+
+        	/*
+            	WAV Structures
+        	*/
+        	typedef struct
+        	{
+            		signed char id[4];
+            		int 		size;
+        	} RiffChunk;
+
+        	struct
+        	{
+            		RiffChunk       chunk           __PACKED;
+            		unsigned short	wFormatTag      __PACKED;    /* format type  */
+            		unsigned short	nChannels       __PACKED;    /* number of channels (i.e. mono, stereo...)  */
+            		unsigned int	nSamplesPerSec  __PACKED;    /* sample rate  */
+            		unsigned int	nAvgBytesPerSec __PACKED;    /* for buffer estimation  */
+            		unsigned short	nBlockAlign     __PACKED;    /* block size of data  */
+            		unsigned short	wBitsPerSample  __PACKED;    /* number of bits per sample of mono data */
+        	} FmtChunk  = {{{'f','m','t',' '}, sizeof(FmtChunk) - sizeof(RiffChunk) }, 1, channels, (int)rate, (int)rate * channels * bits / 8, 1 * channels * bits / 8, bits } __PACKED;
+
+        	struct
+        	{
+            		RiffChunk   chunk;
+        	} DataChunk = {{{'d','a','t','a'}, length }};
+
+        	struct
+        	{
+            		RiffChunk   chunk;
+            		signed char rifftype[4];
+        	} WavHeader = {{{'R','I','F','F'}, sizeof(FmtChunk) + sizeof(RiffChunk) + length }, {'W','A','V','E'} };
+
+        	#if defined(WIN32) || defined(_WIN64) || defined(__WATCOMC__) || defined(_WIN32) || defined(__WIN32__)
+        	#pragma pack()
+        	#endif
+
+        	/*
+            	Write out the WAV header.
+        	*/
+        	fwrite(&WavHeader, sizeof(WavHeader), 1, fp);
+        	fwrite(&FmtChunk, sizeof(FmtChunk), 1, fp);
+        	fwrite(&DataChunk, sizeof(DataChunk), 1, fp);
+    	}
+}
 
