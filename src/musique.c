@@ -10,6 +10,7 @@ void Load(Ui *appwdgt, char* musique)
 	FMOD_CHANNELGROUP *canal;
 	FMOD_System_GetMasterChannelGroup(appwdgt->mus.system, &canal);
 
+	int first = 0;
 	if (appwdgt->mus.musique != NULL)
 	{
 		FMOD_Sound_Release(appwdgt->mus.musique);
@@ -20,13 +21,16 @@ void Load(Ui *appwdgt, char* musique)
 		}
 	}
 	else
-		Attach(appwdgt);
+		first = 1;
 
 	result = FMOD_System_CreateSound(appwdgt->mus.system, musique, FMOD_CREATESTREAM, 0, &(musi));
 	if (result != FMOD_OK)
 		g_print("Couldn't load the sound\n");
 	else
 	{
+		if (first)
+			Attach(appwdgt);
+	
 		appwdgt->mus.musique = musi;
 		appwdgt->mus.is_paused = 0;
 		gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.play_btn), TRUE);
