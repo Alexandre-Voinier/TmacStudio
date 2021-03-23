@@ -159,16 +159,16 @@ void Volume(GtkWidget *slider, Ui *appwdgt)
 	FMOD_ChannelGroup_SetVolume(canal, value);
 }
 
-void WriteWavHeader(FILE *fp, FMOD_SOUND *sound, int length)
+void WriteWavHeader(FILE *fp, Ui *appwdgt, int length)
 {
 	int             channels, bits;
     	float           rate;
 
     	fseek(fp, 0, SEEK_SET);
 
-	FMOD_Sound_GetFormat(sound, 0, 0, &channels, &bits);
+	FMOD_Sound_GetFormat(appwdgt->mus.musique, 0, 0, &channels, &bits);
     	//sound->getFormat  (0, 0, &channels, &bits);
-	FMOD_Sound_GetDefaults(sound, &rate, 0);
+	FMOD_Sound_GetDefaults(appwdgt->mus.musique, &rate, 0);
     	//sound->getDefaults(&rate, 0, 0, 0);
 
     	//{
