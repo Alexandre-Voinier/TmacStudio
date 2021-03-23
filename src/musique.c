@@ -135,6 +135,7 @@ void Attach(Ui *appwdgt)
 	GtkWidget *new = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
 
 	GtkWidget *slider = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0, 1, 0.01);
+	gtk_scale_set_draw_value(GTK_SCALE(slider), FALSE);
 	g_signal_connect(slider, "value_changed", G_CALLBACK(Volume), appwdgt);
 
 	GtkWidget *draw = gtk_drawing_area_new();
