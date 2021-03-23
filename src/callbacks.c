@@ -49,9 +49,7 @@ void on_open_btn_activated(GtkMenuItem *btn, Ui *appwdgt)
 
 void on_save_btn_activated(GtkMenuItem *btn, Ui *appwdgt)
 {
-	if (appwdgt->mus.musique != NULL)
-        {
-                GtkWidget *dialog;
+              	GtkWidget *dialog;
                 GtkFileChooser *chooser;
                 GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_SAVE;
                 gint res;
@@ -84,15 +82,15 @@ void on_save_btn_activated(GtkMenuItem *btn, Ui *appwdgt)
         			printf("ERROR : could not open the file for writing.\n");
     			}
 			else
+			{
 				printf("%s\n", filename);
-				//WriteWavHeader(fp, appwdgt->mus.musique, 0);
+				WriteWavHeader(fp, appwdgt->mus.musique, 0);
+			}
 
                         g_free (filename);
                 }
 
                 gtk_widget_destroy (dialog);
-        }
-
 }
 
 void on_play_btn_clicked(GtkButton *btn, Ui *appwdgt)

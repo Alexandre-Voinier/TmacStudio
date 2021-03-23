@@ -164,11 +164,6 @@ void WriteWavHeader(FILE *fp, FMOD_SOUND *sound, int length)
 	int             channels, bits;
     	float           rate;
 
-    	if (!sound)
-    	{
-        	return;
-    	}
-
     	fseek(fp, 0, SEEK_SET);
 
 	FMOD_Sound_GetFormat(sound, 0, 0, &channels, &bits);
@@ -176,7 +171,7 @@ void WriteWavHeader(FILE *fp, FMOD_SOUND *sound, int length)
 	FMOD_Sound_GetDefaults(sound, &rate, 0);
     	//sound->getDefaults(&rate, 0, 0, 0);
 
-    	{
+    	//{
        		#if defined(WIN32) || defined(_WIN64) || defined(__WATCOMC__) || defined(_WIN32) || defined(__WIN32__)
         	#pragma pack(1)
         	#endif
@@ -222,6 +217,6 @@ void WriteWavHeader(FILE *fp, FMOD_SOUND *sound, int length)
         	fwrite(&WavHeader, sizeof(WavHeader), 1, fp);
         	fwrite(&FmtChunk, sizeof(FmtChunk), 1, fp);
         	fwrite(&DataChunk, sizeof(DataChunk), 1, fp);
-    	}
+    	//}
 }
 
