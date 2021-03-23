@@ -57,7 +57,7 @@ void on_save_btn_activated(GtkMenuItem *btn, Ui *appwdgt)
                 gint res;
 
                 dialog = gtk_file_chooser_dialog_new ("Save File",
-                                      GTK_WINDOW(appwdgt->edit.window),
+                                      NULL,
                                       action,
                                       ("_Cancel"),
                                       GTK_RESPONSE_CANCEL,
@@ -69,7 +69,7 @@ void on_save_btn_activated(GtkMenuItem *btn, Ui *appwdgt)
                 gtk_file_chooser_set_do_overwrite_confirmation (chooser, TRUE);
 
                 gtk_file_chooser_set_current_name (chooser,
-                                     ("record.wav"));
+                                     ("record.WAV"));
 
                 res = gtk_dialog_run (GTK_DIALOG (dialog));
                 if (res == GTK_RESPONSE_ACCEPT)
@@ -78,12 +78,14 @@ void on_save_btn_activated(GtkMenuItem *btn, Ui *appwdgt)
                         filename = gtk_file_chooser_get_filename (chooser);
                         
 			FILE *fp = fopen(filename, "wb");
+			
     			if (!fp)
     			{
         			printf("ERROR : could not open the file for writing.\n");
     			}
 			else
-				WriteWavHeader(fp, appwdgt->mus.musique, 0);
+				printf("%s\n", filename);
+				//WriteWavHeader(fp, appwdgt->mus.musique, 0);
 
                         g_free (filename);
                 }

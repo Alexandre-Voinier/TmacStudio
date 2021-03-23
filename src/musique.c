@@ -171,8 +171,10 @@ void WriteWavHeader(FILE *fp, FMOD_SOUND *sound, int length)
 
     	fseek(fp, 0, SEEK_SET);
 
-    	sound->getFormat  (0, 0, &channels, &bits);
-    	sound->getDefaults(&rate, 0, 0, 0);
+	FMOD_Sound_GetFormat(sound, 0, 0, &channels, &bits);
+    	//sound->getFormat  (0, 0, &channels, &bits);
+	FMOD_Sound_GetDefaults(sound, &rate, 0);
+    	//sound->getDefaults(&rate, 0, 0, 0);
 
     	{
        		#if defined(WIN32) || defined(_WIN64) || defined(__WATCOMC__) || defined(_WIN32) || defined(__WIN32__)
@@ -190,14 +192,14 @@ void WriteWavHeader(FILE *fp, FMOD_SOUND *sound, int length)
 
         	struct
         	{
-            		RiffChunk       chunk           __PACKED;
-            		unsigned short	wFormatTag      __PACKED;    /* format type  */
-            		unsigned short	nChannels       __PACKED;    /* number of channels (i.e. mono, stereo...)  */
-            		unsigned int	nSamplesPerSec  __PACKED;    /* sample rate  */
-            		unsigned int	nAvgBytesPerSec __PACKED;    /* for buffer estimation  */
-            		unsigned short	nBlockAlign     __PACKED;    /* block size of data  */
-            		unsigned short	wBitsPerSample  __PACKED;    /* number of bits per sample of mono data */
-        	} FmtChunk  = {{{'f','m','t',' '}, sizeof(FmtChunk) - sizeof(RiffChunk) }, 1, channels, (int)rate, (int)rate * channels * bits / 8, 1 * channels * bits / 8, bits } __PACKED;
+            		RiffChunk       chunk;
+            		unsigned short	wFormatTag;    /* format type  */
+            		unsigned short	nChannels;    /* number of channels (i.e. mono, stereo...)  */
+            		unsigned int	nSamplesPerSec;    /* sample rate  */
+            		unsigned int	nAvgBytesPerSec;    /* for buffer estimation  */
+            		unsigned short	nBlockAlign;    /* block size of data  */
+            		unsigned short	wBitsPerSample;    /* number of bits per sample of mono data */
+        	} FmtChunk  = {{{'f','m','t',' '}, sizeof(FmtChunk) - sizeof(RiffChunk) }, 1, channels, (int)rate, (int)rate * channels * bits / 8, 1 * channels * bits / 8, bits };
 
         	struct
         	{
