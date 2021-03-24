@@ -86,8 +86,9 @@ void on_save_btn_activated(GtkMenuItem *btn, Ui *appwdgt)
 			else
 			{
 				WriteWavHeader(fp, appwdgt, 5);
-			}
 
+			}
+			fclose(fp);
                         g_free (filename);
                 }
 

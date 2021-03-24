@@ -167,6 +167,7 @@ void init_musStruct(Ui *appwdgt)
 	appwdgt->mus.system = systemNew;
   	appwdgt->mus.musique = NULL;
 	appwdgt->mus.is_paused = 0;
+	appwdgt->mus.datalength = 0;
 
 }
 
