@@ -163,9 +163,10 @@ void init_musStruct(Ui *appwdgt)
 	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.play_btn), FALSE);
         gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.pause_btn), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.rec_btn), TRUE);
-	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.stop_btn), FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.stop_btn), TRUE);
 	appwdgt->mus.system = systemNew;
   	appwdgt->mus.musique = NULL;
+	appwdgt->mus.is_recording = 0;
 	appwdgt->mus.is_paused = 0;
 	appwdgt->mus.datalength = 0;
 

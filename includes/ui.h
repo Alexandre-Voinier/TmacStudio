@@ -29,6 +29,7 @@ typedef struct MusStruct
         FMOD_SYSTEM *system;
         FMOD_SOUND *musique;
 	int is_paused;
+	int is_recording;
 	unsigned int datalength;
 }MusStruct;
 

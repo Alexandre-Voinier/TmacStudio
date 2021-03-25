@@ -85,7 +85,7 @@ void on_save_btn_activated(GtkMenuItem *btn, Ui *appwdgt)
     			}
 			else
 			{
-				WriteWavHeader(fp, appwdgt, 5);
+				WriteWavHeader(fp, appwdgt, appwdgt->mus.datalength);
 
 			}
 			fclose(fp);

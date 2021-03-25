@@ -77,111 +77,114 @@ void RecordStart(Ui *appwdgt)
 {
 	FMOD_CHANNELGROUP *canal;
         FMOD_System_GetMasterChannelGroup(appwdgt->mus.system, &canal);
-
-        if (appwdgt->mus.musique != NULL)
-        {
-                FMOD_Sound_Release(appwdgt->mus.musique);
-                if (appwdgt->mus.is_paused)
-                {
-                        appwdgt->mus.is_paused = 0;
-                        FMOD_ChannelGroup_SetPaused(canal, 0);
-                }
-        }
-	else
-		Attach(appwdgt);
-
-	FMOD_CREATESOUNDEXINFO exinfo;
-	memset(&exinfo, 0, sizeof(FMOD_CREATESOUNDEXINFO));
-	exinfo.cbsize = sizeof(FMOD_CREATESOUNDEXINFO);
-    	exinfo.numchannels = 1;
-    	exinfo.format = FMOD_SOUND_FORMAT_PCM16;
-    	exinfo.defaultfrequency = 44100;
-    	exinfo.length = exinfo.defaultfrequency * sizeof(short) * exinfo.numchannels * 150;
-
-	FMOD_RESULT result;
-
-	result = FMOD_System_CreateSound(appwdgt->mus.system, 0, FMOD_2D | FMOD_OPENUSER | FMOD_CREATESAMPLE , &exinfo, &(appwdgt->mus.musique));
-
-	if (result != FMOD_OK)
-		g_print("cannot create the sound");
-	else
+	
+	if (appwdgt->mus.is_recording == 0)
 	{
-		int num;
-    		FMOD_System_GetRecordNumDrivers(appwdgt->mus.system, NULL, &num);
-    		for (int count = 0; count < num; count++)
-    		{
-        		char name[256];
 
-        		FMOD_System_GetRecordDriverInfo(appwdgt->mus.system, count, name, 256, NULL, NULL, NULL, NULL, NULL);
-        		printf("%d : %s\n", count, name);
-    		}
+        	if (appwdgt->mus.musique != NULL)
+        	{
+                	FMOD_Sound_Release(appwdgt->mus.musique);
+                	if (appwdgt->mus.is_paused)
+                	{
+                        	appwdgt->mus.is_paused = 0;
+                        	FMOD_ChannelGroup_SetPaused(canal, 0);
+                	}
+        	}
+		else
+			Attach(appwdgt);
 
-    		FMOD_System_RecordStart(appwdgt->mus.system,0, appwdgt->mus.musique, 0);
-		gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.rec_btn), FALSE);
-		gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.stop_btn), TRUE);
-		gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.play_btn), FALSE);
-        	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.pause_btn), FALSE);
+		FMOD_CREATESOUNDEXINFO exinfo;
+		memset(&exinfo, 0, sizeof(FMOD_CREATESOUNDEXINFO));
+		exinfo.cbsize = sizeof(FMOD_CREATESOUNDEXINFO);
+    		exinfo.numchannels = 1;
+    		exinfo.format = FMOD_SOUND_FORMAT_PCM16;
+    		exinfo.defaultfrequency = 44100;
+    		exinfo.length = exinfo.defaultfrequency * sizeof(short) * exinfo.numchannels * 150;
 
-		/*
-		FILE *fp = fopen("record.wav", "wb");
-		if (!fp)
-    		{
-        		printf("ERROR : could not open record.wav for writing.\n");
-    		}
-		
-		unsigned int datalength, soundlength;
-		result = FMOD_Sound_GetLength(appwdgt->mus.musique, &soundlength, FMOD_TIMEUNIT_PCM);
-		FMOD_BOOL recording;
+		FMOD_RESULT result;
 
-		int key = 0;
-		do
+		result = FMOD_System_CreateSound(appwdgt->mus.system, 0, FMOD_2D | FMOD_OPENUSER | FMOD_CREATESAMPLE , &exinfo, &(appwdgt->mus.musique));
+
+		if (result != FMOD_OK)
+			g_print("cannot create the sound\n");
+		else
 		{
-			static unsigned int lastrecordpos = 0;
-        		unsigned int recordpos = 0;
+			int num;
+    			FMOD_System_GetRecordNumDrivers(appwdgt->mus.system, NULL, &num);
+    			for (int count = 0; count < num; count++)
+    			{
+        			char name[256];
 
-			if (_kbhit())
-				key = _getch();
+        			FMOD_System_GetRecordDriverInfo(appwdgt->mus.system, count, name, 256, NULL, NULL, NULL, NULL, NULL);
+        			printf("%d : %s\n", count, name);
+    			}
 
-			FMOD_System_GetRecordPosition(appwdgt->mus.system, 0, &recordpos);
+    			FMOD_System_RecordStart(appwdgt->mus.system,0, appwdgt->mus.musique, 0);
+			gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.play_btn), FALSE);
+        		gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.pause_btn), FALSE);
+			appwdgt->mus.is_recording = 1;
 
-			if (recordpos != lastrecordpos)
+			FILE *fp = fopen("record.wav", "wb");
+			if (!fp)
+    			{
+        			printf("ERROR : could not open record.wav for writing.\n");
+    			}
+
+			WriteWavHeader(fp, appwdgt, 0);	
+			unsigned int datalength, soundlength;
+			result = FMOD_Sound_GetLength(appwdgt->mus.musique, &soundlength, FMOD_TIMEUNIT_PCM);
+			if (result != FMOD_OK)
+				g_print("cannot get the length\n");
+
+			if (appwdgt->mus.is_recording);
 			{
-				void *ptr1, *ptr2;
-				int blocklength;
-				unsigned int len1, len2;
+				printf("in boucle\n");
+				static unsigned int lastrecordpos = 0;
+        			unsigned int recordpos = 0;
 
-				blocklength = (int)recordpos - (int)lastrecordpos;
-				if (blocklength < 0)
-					blocklength += soundlength;
+				result = FMOD_System_GetRecordPosition(appwdgt->mus.system, 0, &recordpos);
+				if (result != FMOD_OK)
+					g_print("cannot get recordposi\n");
 
-				FMOD_Sound_Lock(appwdgt->mus.musique, lastrecordpos * exinfo.numchannels * 2, blocklength * exinfo.numchannels * 2, &ptr1, &ptr2, &len1, &len2);  
+				if (recordpos != lastrecordpos)
+				{
+					void *ptr1, *ptr2;
+					int blocklength;
+					unsigned int len1, len2;
 
-				if (ptr1 && len1)
-					appwdgt->mus.datalength += fwrite(ptr1, 1, len1, fp);
-				if (ptr2 && len2)
-					appwdgt->mus.datalength += fwrite(ptr2, 1, len2, fp);
+					blocklength = (int)recordpos - (int)lastrecordpos;
+					if (blocklength < 0)
+						blocklength += soundlength;
+	
+					FMOD_Sound_Lock(appwdgt->mus.musique, lastrecordpos * exinfo.numchannels * 2, blocklength * exinfo.numchannels * 2, &ptr1, &ptr2, &len1, &len2);  
 
-				FMOD_Sound_Unlock(appwdgt->mus.musique, ptr1, ptr2, len1, len2);
+					if (ptr1 && len1)
+						appwdgt->mus.datalength += fwrite(ptr1, 1, len1, fp);
+					if (ptr2 && len2)
+						appwdgt->mus.datalength += fwrite(ptr2, 1, len2, fp);
+
+					FMOD_Sound_Unlock(appwdgt->mus.musique, ptr1, ptr2, len1, len2);
+				}
+				printf("%i\n", datalength);
+				lastrecordpos = recordpos;
+				FMOD_System_Update(appwdgt->mus.system);
 			}
-			lastrecordpos = recordpos;
-			FMOD_System_Update(appwdgt->mus.system);
-			sleep(10);
-		} while (key != 27);
-
-		fclose(fp);
-		remove("record.wav");*/
+			fclose(fp);
+		}
 	}
 }
 
 void RecordStop(Ui *appwdgt)
 {
-	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.stop_btn), FALSE);
-	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.rec_btn), TRUE);
-	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.play_btn), TRUE);
-	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.pause_btn), TRUE);
+	if (appwdgt->mus.is_recording == 1)
+	{
+		appwdgt->mus.is_recording = 0;
+		gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.play_btn), TRUE);
+		gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.pause_btn), TRUE);
 
-	FMOD_System_RecordStop(appwdgt->mus.system,0);
-    	g_print("%d", appwdgt->mus.musique == NULL);
+		FMOD_System_RecordStop(appwdgt->mus.system,0);
+    		g_print("%d", appwdgt->mus.musique == NULL);
+	}
 }
 
 void Attach(Ui *appwdgt)
