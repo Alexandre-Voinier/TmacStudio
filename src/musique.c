@@ -14,6 +14,11 @@ void Load(Ui *appwdgt, char* musique)
 	if (appwdgt->mus.musique != NULL)
 	{
 		FMOD_Sound_Release(appwdgt->mus.musique);
+		appwdgt->mus.soundlength = 0;
+                appwdgt->mus.datalength = 0;
+                appwdgt->mus.fd = NULL;
+               	appwdgt->mus.save = 0;
+
 		if (appwdgt->mus.is_paused)
 		{
 			appwdgt->mus.is_paused = 0;
@@ -73,6 +78,39 @@ void Pause(Ui *appwdgt)
 	}
 }
 
+void Save(Ui *appwdgt)
+{
+	 static unsigned int lastrecordpos = 0;
+         unsigned int recordpos = 0;
+
+         FMOD_RESULT result = FMOD_System_GetRecordPosition(appwdgt->mus.system, 0, &recordpos);
+         if (result != FMOD_OK)
+		 g_print("cannot get recordpos\n");
+	 else
+	 {
+	 	if (recordpos != lastrecordpos)
+	 	{
+			void *ptr1, *ptr2;
+         	        int blocklength;
+                	unsigned int len1, len2;
+
+                 	blocklength = (int)recordpos - (int)lastrecordpos;
+                 	if (blocklength < 0)
+				 blocklength += appwdgt->mus.soundlength;
+
+                 	FMOD_Sound_Lock(appwdgt->mus.musique, lastrecordpos * appwdgt->mus.exinfo.numchannels * 2, blocklength * appwdgt->mus.exinfo.numchannels * 2, &ptr1, &ptr2, &len1, &len2);
+
+                 	if (ptr1 && len1)
+				 appwdgt->mus.datalength += fwrite(ptr1, 1, len1, appwdgt->mus.fd);
+                 	if (ptr2 && len2)
+                        	 appwdgt->mus.datalength += fwrite(ptr2, 1, len2, appwdgt->mus.fd);
+
+                 	FMOD_Sound_Unlock(appwdgt->mus.musique, ptr1, ptr2, len1, len2);
+		}
+         }
+         FMOD_System_Update(appwdgt->mus.system);
+}
+
 void RecordStart(Ui *appwdgt)
 {
 	FMOD_CHANNELGROUP *canal;
@@ -84,6 +122,12 @@ void RecordStart(Ui *appwdgt)
         	if (appwdgt->mus.musique != NULL)
         	{
                 	FMOD_Sound_Release(appwdgt->mus.musique);
+
+			appwdgt->mus.soundlength = 0;
+			appwdgt->mus.datalength = 0;
+			appwdgt->mus.fd = NULL;
+			appwdgt->mus.save = 0;
+
                 	if (appwdgt->mus.is_paused)
                 	{
                         	appwdgt->mus.is_paused = 0;
@@ -100,6 +144,7 @@ void RecordStart(Ui *appwdgt)
     		exinfo.format = FMOD_SOUND_FORMAT_PCM16;
     		exinfo.defaultfrequency = 44100;
     		exinfo.length = exinfo.defaultfrequency * sizeof(short) * exinfo.numchannels * 150;
+		appwdgt->mus.exinfo = exinfo;
 
 		FMOD_RESULT result;
 
@@ -122,54 +167,24 @@ void RecordStart(Ui *appwdgt)
     			FMOD_System_RecordStart(appwdgt->mus.system,0, appwdgt->mus.musique, 0);
 			gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.play_btn), FALSE);
         		gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.pause_btn), FALSE);
+			gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.rec_btn), FALSE);
+                        gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.stop_btn), TRUE);
+
 			appwdgt->mus.is_recording = 1;
-
-			FILE *fp = fopen("record.wav", "wb");
-			if (!fp)
-    			{
+			
+			appwdgt->mus.fd = fopen(".record.wav", "wb");
+			if (!appwdgt->mus.fd)
         			printf("ERROR : could not open record.wav for writing.\n");
-    			}
-
-			WriteWavHeader(fp, appwdgt, 0);	
-			unsigned int datalength, soundlength;
-			result = FMOD_Sound_GetLength(appwdgt->mus.musique, &soundlength, FMOD_TIMEUNIT_PCM);
-			if (result != FMOD_OK)
-				g_print("cannot get the length\n");
-
-			if (appwdgt->mus.is_recording);
+			else
 			{
-				printf("in boucle\n");
-				static unsigned int lastrecordpos = 0;
-        			unsigned int recordpos = 0;
 
-				result = FMOD_System_GetRecordPosition(appwdgt->mus.system, 0, &recordpos);
+				WriteWavHeader(appwdgt->mus.fd, appwdgt, appwdgt->mus.datalength);	
+				result = FMOD_Sound_GetLength(appwdgt->mus.musique, &(appwdgt->mus.soundlength), FMOD_TIMEUNIT_PCM);
 				if (result != FMOD_OK)
-					g_print("cannot get recordposi\n");
-
-				if (recordpos != lastrecordpos)
-				{
-					void *ptr1, *ptr2;
-					int blocklength;
-					unsigned int len1, len2;
-
-					blocklength = (int)recordpos - (int)lastrecordpos;
-					if (blocklength < 0)
-						blocklength += soundlength;
-	
-					FMOD_Sound_Lock(appwdgt->mus.musique, lastrecordpos * exinfo.numchannels * 2, blocklength * exinfo.numchannels * 2, &ptr1, &ptr2, &len1, &len2);  
-
-					if (ptr1 && len1)
-						appwdgt->mus.datalength += fwrite(ptr1, 1, len1, fp);
-					if (ptr2 && len2)
-						appwdgt->mus.datalength += fwrite(ptr2, 1, len2, fp);
-
-					FMOD_Sound_Unlock(appwdgt->mus.musique, ptr1, ptr2, len1, len2);
-				}
-				printf("%i\n", datalength);
-				lastrecordpos = recordpos;
-				FMOD_System_Update(appwdgt->mus.system);
+					g_print("cannot get the length\n");
+				else
+					appwdgt->mus.save = g_timeout_add_seconds(10, G_SOURCE_FUNC(Save), appwdgt);
 			}
-			fclose(fp);
 		}
 	}
 }
@@ -178,11 +193,18 @@ void RecordStop(Ui *appwdgt)
 {
 	if (appwdgt->mus.is_recording == 1)
 	{
+		Save(appwdgt);
+		g_source_remove(appwdgt->mus.save);
 		appwdgt->mus.is_recording = 0;
+		WriteWavHeader(appwdgt->mus.fd, appwdgt, appwdgt->mus.datalength);
+		fclose(appwdgt->mus.fd);
 		gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.play_btn), TRUE);
 		gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.pause_btn), TRUE);
+		gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.rec_btn), TRUE);
+                gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.stop_btn), FALSE);
 
 		FMOD_System_RecordStop(appwdgt->mus.system,0);
+
     		g_print("%d", appwdgt->mus.musique == NULL);
 	}
 }
@@ -224,9 +246,7 @@ void WriteWavHeader(FILE *fp, Ui *appwdgt, int length)
     	fseek(fp, 0, SEEK_SET);
 
 	FMOD_Sound_GetFormat(appwdgt->mus.musique, 0, 0, &channels, &bits);
-    	//sound->getFormat  (0, 0, &channels, &bits);
 	FMOD_Sound_GetDefaults(appwdgt->mus.musique, &rate, 0);
-    	//sound->getDefaults(&rate, 0, 0, 0);
 
     	//{
        		#if defined(WIN32) || defined(_WIN64) || defined(__WATCOMC__) || defined(_WIN32) || defined(__WIN32__)

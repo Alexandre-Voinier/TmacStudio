@@ -1,6 +1,8 @@
 #include "../includes/callbacks.h"
 #include "../includes/ui.h"
 #include <fmod.h>
+#include <unistd.h>
+#include <wait.h>
 
 //============================= EDIT SCREEN ==================================//
 
@@ -49,7 +51,7 @@ void on_open_btn_activated(GtkMenuItem *btn, Ui *appwdgt)
 
 void on_save_btn_activated(GtkMenuItem *btn, Ui *appwdgt)
 {
-	if (appwdgt->mus.musique != NULL)
+	if (appwdgt->mus.musique != NULL && appwdgt->mus.fd != NULL)
 	{
               	GtkWidget *dialog;
                 GtkFileChooser *chooser;
@@ -69,7 +71,7 @@ void on_save_btn_activated(GtkMenuItem *btn, Ui *appwdgt)
                 gtk_file_chooser_set_do_overwrite_confirmation (chooser, TRUE);
 
                 gtk_file_chooser_set_current_name (chooser,
-                                     ("record.WAV"));
+                                     ("record.wav"));
 
                 res = gtk_dialog_run (GTK_DIALOG (dialog));
                 if (res == GTK_RESPONSE_ACCEPT)
@@ -77,18 +79,19 @@ void on_save_btn_activated(GtkMenuItem *btn, Ui *appwdgt)
                         char *filename;
                         filename = gtk_file_chooser_get_filename (chooser);
                         
-			FILE *fp = fopen(filename, "wb");
 			
-    			if (!fp)
-    			{
-        			printf("ERROR : could not open the file for writing.\n");
-    			}
+    			if (fork())
+        			wait(NULL);
 			else
 			{
-				WriteWavHeader(fp, appwdgt, appwdgt->mus.datalength);
+				char *arg[4];
+				arg[0] = "cp";
+				arg[1] = ".record.wav";
+				arg[2] = filename;
+				arg[3] = NULL;
 
+				execvp(arg[0], arg);
 			}
-			fclose(fp);
                         g_free (filename);
                 }
 

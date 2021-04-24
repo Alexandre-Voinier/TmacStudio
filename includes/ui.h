@@ -28,9 +28,15 @@ typedef struct MusStruct
 {
         FMOD_SYSTEM *system;
         FMOD_SOUND *musique;
+
 	int is_paused;
 	int is_recording;
+
+	FMOD_CREATESOUNDEXINFO exinfo;
 	unsigned int datalength;
+	unsigned int soundlength;
+	FILE* fd;
+	guint save;
 }MusStruct;
 
 
@@ -80,6 +86,8 @@ void Load(Ui *appwdgt, char* musique);
 void Play(Ui *appwdgt);
 
 void Pause(Ui *appwdgt);
+
+void Save(Ui *appwdgt);
 
 void RecordStart(Ui *appwdgt);
 
