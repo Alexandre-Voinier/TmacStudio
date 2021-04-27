@@ -24,6 +24,15 @@ void Load(Ui *appwdgt, char* musique)
 			appwdgt->mus.is_paused = 0;
 			FMOD_ChannelGroup_SetPaused(canal, 0);
 		}
+
+		FMOD_BOOL mute;
+		FMOD_ChannelGroup_GetMute(canal, &mute);
+		if (mute)
+			FMOD_ChannelGroup_SetMute(canal, 0);
+		float pitch;
+                FMOD_ChannelGroup_GetPitch(canal, &pitch);
+                if (pitch != 1)
+                     	FMOD_ChannelGroup_SetPitch(canal, 1);
 	}
 	else
 		first = 1;
@@ -35,7 +44,7 @@ void Load(Ui *appwdgt, char* musique)
 	{
 		if (first)
 			Attach(appwdgt);
-	
+			
 		appwdgt->mus.musique = musi;
 		appwdgt->mus.is_paused = 0;
 		gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.play_btn), TRUE);
@@ -133,6 +142,16 @@ void RecordStart(Ui *appwdgt)
                         	appwdgt->mus.is_paused = 0;
                         	FMOD_ChannelGroup_SetPaused(canal, 0);
                 	}
+			FMOD_BOOL mute;
+                	FMOD_ChannelGroup_GetMute(canal, &mute);
+                	if (mute)
+                        	FMOD_ChannelGroup_SetMute(canal, 0);
+
+			float pitch;
+			FMOD_ChannelGroup_GetPitch(canal, &pitch);
+			if (pitch != 1)
+				FMOD_ChannelGroup_SetPitch(canal, 1);
+
         	}
 		else
 			Attach(appwdgt);
@@ -236,6 +255,47 @@ void Volume(GtkWidget *slider, Ui *appwdgt)
 	FMOD_CHANNELGROUP *canal;
 	FMOD_System_GetMasterChannelGroup(appwdgt->mus.system, &canal);
 	FMOD_ChannelGroup_SetVolume(canal, value);
+}
+
+void Mute(Ui* appwdgt)
+{
+	FMOD_CHANNELGROUP *canal;
+        FMOD_System_GetMasterChannelGroup(appwdgt->mus.system, &canal);
+        FMOD_RESULT result;
+	FMOD_BOOL mute;
+
+	result = FMOD_ChannelGroup_GetMute(canal, &mute);
+	if (result != FMOD_OK)
+                g_print("error while getting the mute's mode\n");
+	else
+	{
+		if (mute)
+			FMOD_ChannelGroup_SetMute(canal, 0);
+		else
+			FMOD_ChannelGroup_SetMute(canal, 1);
+	}
+}
+
+void Height(Ui *appwdgt, float coef)
+{
+	if (coef >= 0.5 && coef <= 2)
+	{
+		FMOD_CHANNELGROUP *canal;
+        	FMOD_System_GetMasterChannelGroup(appwdgt->mus.system, &canal);
+        	FMOD_RESULT result;
+
+		result = FMOD_ChannelGroup_SetPitch(canal, coef);
+		if (result != FMOD_OK)
+			g_print("error while modifying the pitch\n");
+	}
+}
+
+void Loop(Ui *appwdgt, int booleen)
+{
+	if (booleen)
+		FMOD_Sound_SetMode(appwdgt->mus.musique, FMOD_LOOP_NORMAL);
+	else
+		FMOD_Sound_SetMode(appwdgt->mus.musique, FMOD_LOOP_OFF);
 }
 
 void WriteWavHeader(FILE *fp, Ui *appwdgt, int length)
