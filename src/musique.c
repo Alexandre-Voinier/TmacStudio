@@ -220,11 +220,33 @@ void RecordStop(Ui *appwdgt)
 	}
 }
 
+int Compare(char* str1, char* str2, size_t n)
+{
+    for(size_t k = 0;k<n;k++)
+    {
+        if (*(str1+k)!=*(str2+k))
+            return -1;
+    }
+    return 0;
+}
+
 void on_entry_activated(GtkWidget *entry, Ui *appwdgt)
 {
 	// tu peux utiliser cette chaine comme la chaine globale entrée :)
 	const gchar* chaine = gtk_entry_get_text(GTK_ENTRY(entry));
-	
+
+	if (Compare((char*)(chaine),"reverb",6) == 0)
+        printf("You have called the reverb function wolla\n");
+            
+    if(Compare((char*)(chaine),"clear",5) == 0)
+        gtk_editable_delete_text(GTK_EDITABLE(entry), 0, -1);
+
+    if (Compare((char*)(chaine),"exit",4) == 0)
+        gtk_main_quit();
+
+    if (Compare((char*)(chaine),"cut",3) == 0)
+        printf("You have called the cut function wolla\n");
+
 	//ci-dessous, pour modifier le text du shell 
 	GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(appwdgt->edit.TextS));
 	gtk_text_buffer_set_text(buffer, "chaine à saisir", 15); //où 15 est la longueur de la chaineà set.	
