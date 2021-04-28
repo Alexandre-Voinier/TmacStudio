@@ -220,26 +220,50 @@ void RecordStop(Ui *appwdgt)
 	}
 }
 
+void on_entrey_activated(GtkWidget *entry, Ui *appwdgt)
+{
+	const gchar* chaine = gtk_entry_get_text(GTK_ENTRY(entry));
+	
+	// tu peux utiliser cette chaine avec ta fonction que tu devrais placer ici :)
+	
+	gtk_editable_delete_text(GTK_EDITABLE(entry), 0, -1); 
+}
+
 void Attach(Ui *appwdgt)
 {
-	GtkWidget *new = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+	//On s'occupe de la zone du slider
+	GtkWidget *new1 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
 
 	GtkWidget *slider = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0, 1, 0.01);
 	gtk_scale_set_draw_value(GTK_SCALE(slider), FALSE);
 	g_signal_connect(slider, "value_changed", G_CALLBACK(Volume), appwdgt);
 
 	GtkWidget *draw = gtk_drawing_area_new();
+	
+	gtk_box_pack_start(GTK_BOX(new1), draw, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(new1), slider, TRUE, TRUE, 0);	
+		
+	//On s'occupe de la zone de l'entrée et du spectre
+	GtkWidget *new2 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+	
+	//ici tu peux créer ta drawing area pour le spectre
+	GtkWidget *entry = gtk_entry_new();
+	g_signal_connect(entry, "activate", G_CALLBACK(on_entry_activated), appwdgt);
+	
+	gtk_box_pack_start(GTK_BOX(new2), zoneSpectre, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(new2), entry, TRUE, TRUE, 0);
 
-	gtk_box_pack_start(GTK_BOX(new), draw, TRUE, TRUE, 0);
-	gtk_box_pack_start(GTK_BOX(new), slider, TRUE, TRUE, 0);
-
-	gtk_box_pack_start(appwdgt->edit.grille, new, FALSE, FALSE, 0);
+	//ici on ajouter les deux nouvelles zones sous les boutons
+	gtk_box_pack_start(appwdgt->edit.grille, new1, FALSE, FALSE, 0);
+	gtk_box_pack_start(appwdgt->edit.grille, new2, FALSE, FALSE, 0);
+	
 	FMOD_CHANNELGROUP *canal;
         FMOD_System_GetMasterChannelGroup(appwdgt->mus.system, &canal);
         FMOD_ChannelGroup_SetVolume(canal, 0);
 
 	gtk_widget_show_all(GTK_WIDGET(appwdgt->edit.window));
 }
+
 
 void Volume(GtkWidget *slider, Ui *appwdgt)
 {
