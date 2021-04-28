@@ -268,20 +268,6 @@ void Mute(Ui* appwdgt)
 	}
 }
 
-void Height(Ui *appwdgt, float coef)
-{
-	if (coef >= 0.5 && coef <= 2)
-	{
-		FMOD_CHANNELGROUP *canal;
-        	FMOD_System_GetMasterChannelGroup(appwdgt->mus.system, &canal);
-        	FMOD_RESULT result;
-
-		result = FMOD_ChannelGroup_SetPitch(canal, coef);
-		if (result != FMOD_OK)
-			g_print("error while modifying the pitch\n");
-	}
-}
-
 void Loop(Ui *appwdgt, int booleen)
 {
 	if (booleen)

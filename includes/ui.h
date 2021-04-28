@@ -99,8 +99,6 @@ void Volume(GtkWidget *slider, Ui *appwdgt);
 
 void Mute(Ui* appwdgt);
 
-void Height(Ui *appwdgt, float coef);
-
 void Loop(Ui *appwdgt, int booleen);
 
 void WriteWavHeader(FILE *fp, Ui *appwdgt, int length);
