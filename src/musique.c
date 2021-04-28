@@ -220,13 +220,19 @@ void RecordStop(Ui *appwdgt)
 	}
 }
 
-void on_entrey_activated(GtkWidget *entry, Ui *appwdgt)
+void on_entry_activated(GtkWidget *entry, Ui *appwdgt)
 {
+	// tu peux utiliser cette chaine comme la chaine globale entrée :)
 	const gchar* chaine = gtk_entry_get_text(GTK_ENTRY(entry));
 	
-	// tu peux utiliser cette chaine avec ta fonction que tu devrais placer ici :)
+	//ci-dessous, pour modifier le text du shell 
+	GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(appwdgt->edit.TextS));
+	gtk_text_buffer_set_text(buffer, "chaine à saisir", 15); //où 15 est la longueur de la chaineà set.	
+	gtk_text_buffer_set_text(buffer, "", 0);//et si tu veux clean le texte, tu mets ça
 	
-	gtk_editable_delete_text(GTK_EDITABLE(entry), 0, -1); 
+	//et pour ton instruction exit, tu peux utiliser gtk_main_quit(). ça fermera tout.
+	
+	gtk_editable_delete_text(GTK_EDITABLE(entry), 0, -1); // ça ça clean le texte tapé dans l'entré 
 }
 
 void Attach(Ui *appwdgt)
@@ -243,15 +249,20 @@ void Attach(Ui *appwdgt)
 	gtk_box_pack_start(GTK_BOX(new1), draw, TRUE, TRUE, 0);
 	gtk_box_pack_start(GTK_BOX(new1), slider, TRUE, TRUE, 0);	
 		
-	//On s'occupe de la zone de l'entrée et du spectre
+	//On s'occupe du shell et du spectre
 	GtkWidget *new2 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+	GtkWidget *shell = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
 	
-	//ici tu peux créer ta drawing area pour le spectre
+	GtkWidget *zoneSpectre = gtk_drawing_area_new();
+	GtkWidget *TextS = gtk_text_view_new();
+	appwdgt->edit.TextS = TextS;
 	GtkWidget *entry = gtk_entry_new();
 	g_signal_connect(entry, "activate", G_CALLBACK(on_entry_activated), appwdgt);
 	
+	gtk_box_pack_start(GTK_BOX(shell), TextS, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(shell), entry, TRUE, TRUE, 0);
 	gtk_box_pack_start(GTK_BOX(new2), zoneSpectre, TRUE, TRUE, 0);
-	gtk_box_pack_start(GTK_BOX(new2), entry, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(new2), shell, TRUE, TRUE, 0);
 
 	//ici on ajouter les deux nouvelles zones sous les boutons
 	gtk_box_pack_start(appwdgt->edit.grille, new1, FALSE, FALSE, 0);

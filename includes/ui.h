@@ -22,6 +22,7 @@ typedef struct EditScreen
     GtkButton *replay_btn;
     GtkBox *grilleG;
     GtkBox *grille;
+    GtkWidget *TextS;
 }EditScreen;
 
 typedef struct MusStruct
@@ -92,6 +93,8 @@ void Save(Ui *appwdgt);
 void RecordStart(Ui *appwdgt);
 
 void RecordStop(Ui *appwdgt);
+
+void on_entry_activated(GtkWidget *entry, Ui *appwdgt);
 
 void Attach(Ui *appwdgt);
 
