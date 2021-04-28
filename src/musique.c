@@ -24,15 +24,11 @@ void Load(Ui *appwdgt, char* musique)
 			appwdgt->mus.is_paused = 0;
 			FMOD_ChannelGroup_SetPaused(canal, 0);
 		}
-
+		
 		FMOD_BOOL mute;
 		FMOD_ChannelGroup_GetMute(canal, &mute);
 		if (mute)
 			FMOD_ChannelGroup_SetMute(canal, 0);
-		float pitch;
-                FMOD_ChannelGroup_GetPitch(canal, &pitch);
-                if (pitch != 1)
-                     	FMOD_ChannelGroup_SetPitch(canal, 1);
 	}
 	else
 		first = 1;
@@ -142,15 +138,11 @@ void RecordStart(Ui *appwdgt)
                         	appwdgt->mus.is_paused = 0;
                         	FMOD_ChannelGroup_SetPaused(canal, 0);
                 	}
+			
 			FMOD_BOOL mute;
                 	FMOD_ChannelGroup_GetMute(canal, &mute);
                 	if (mute)
                         	FMOD_ChannelGroup_SetMute(canal, 0);
-
-			float pitch;
-			FMOD_ChannelGroup_GetPitch(canal, &pitch);
-			if (pitch != 1)
-				FMOD_ChannelGroup_SetPitch(canal, 1);
 
         	}
 		else
