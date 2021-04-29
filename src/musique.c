@@ -260,13 +260,13 @@ void Attach(Ui *appwdgt)
 	g_signal_connect(entry, "activate", G_CALLBACK(on_entry_activated), appwdgt);
 	
 	gtk_box_pack_start(GTK_BOX(shell), TextS, TRUE, TRUE, 0);
-	gtk_box_pack_start(GTK_BOX(shell), entry, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(shell), entry, FALSE, FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(new2), zoneSpectre, TRUE, TRUE, 0);
 	gtk_box_pack_start(GTK_BOX(new2), shell, TRUE, TRUE, 0);
 
 	//ici on ajouter les deux nouvelles zones sous les boutons
-	gtk_box_pack_start(appwdgt->edit.grille, new1, FALSE, FALSE, 0);
-	gtk_box_pack_start(appwdgt->edit.grille, new2, FALSE, FALSE, 0);
+	gtk_box_pack_start(appwdgt->edit.grille, new1, TRUE, TRUE, 0);
+	gtk_box_pack_start(appwdgt->edit.grille, new2, TRUE, TRUE, 0);
 	
 	FMOD_CHANNELGROUP *canal;
         FMOD_System_GetMasterChannelGroup(appwdgt->mus.system, &canal);
