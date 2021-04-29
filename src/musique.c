@@ -333,6 +333,20 @@ void Loop(Ui *appwdgt, int booleen)
 		FMOD_Sound_SetMode(appwdgt->mus.musique, FMOD_LOOP_OFF);
 }
 
+void Height(Ui *appwdgt, float coef)
+{
+	if (appwdgt->mus.height == NULL)
+	{
+		FMOD_DSP *height;
+		FMOD_System_CreateDSPByType(appwdgt->mus.system, FMOD_DSP_TYPE_PITCHSHIFT, &height);
+		appwdgt->mus.height = height;
+		FMOD_CHANNELGROUP *canal;
+        	FMOD_System_GetMasterChannelGroup(appwdgt->mus.system, &canal);
+		FMOD_ChannelGroup_AddDSP(canal, FMOD_CHANNELCONTROL_DSP_TAIL, appwdgt->mus.height);
+	}
+	FMOD_DSP_SetParameterFloat(appwdgt->mus.height, 0, coef);
+}
+
 void WriteWavHeader(FILE *fp, Ui *appwdgt, int length)
 {
 	int             channels, bits;

@@ -171,5 +171,6 @@ void init_musStruct(Ui *appwdgt)
 	appwdgt->mus.fd = NULL;
 	appwdgt->mus.datalength = 0;
 	appwdgt->mus.soundlength = 0;
+	appwdgt->mus.height = NULL;
 }
 

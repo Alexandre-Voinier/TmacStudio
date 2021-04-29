@@ -38,6 +38,8 @@ typedef struct MusStruct
 	unsigned int soundlength;
 	FILE* fd;
 	guint save;
+
+	FMOD_DSP *height;
 }MusStruct;
 
 
@@ -103,6 +105,8 @@ void Volume(GtkWidget *slider, Ui *appwdgt);
 void Mute(Ui* appwdgt);
 
 void Loop(Ui *appwdgt, int booleen);
+
+void Height(Ui *appwdgt, float coef);
 
 void WriteWavHeader(FILE *fp, Ui *appwdgt, int length);
 
