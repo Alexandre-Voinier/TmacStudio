@@ -249,17 +249,13 @@ void on_entry_activated(GtkWidget *entry, Ui *appwdgt)
     if (Compare((char*)(chaine),"loop",4) == 0)
 	{
 		gtk_text_buffer_set_text(buffer, "", 0);
-		gtk_text_buffer_set_text(buffer, "1 for true and 0 for false\n", 27);
-		chaine = gtk_entry_get_text(GTK_ENTRY(entry));
-        	Loop(appwdgt,(int)(strtol((char*)(chaine),NULL,10)));
+		Loop(appwdgt,(int)(strtol((char*)(chaine+6),NULL,10)));
 	}
 
 	if (Compare((char*)(chaine),"height",6) == 0)
 	{
 		gtk_text_buffer_set_text(buffer, "", 0);
-		gtk_text_buffer_set_text(buffer, "Input the coef of the height to change it change\n", 49);
-		chaine = gtk_entry_get_text(GTK_ENTRY(entry));
-        	Height(appwdgt,strtof((char*)(chaine),NULL));
+		Height(appwdgt,strtof((char*)(chaine+8),NULL));
 	}
 	
 	gtk_editable_delete_text(GTK_EDITABLE(entry), 0, -1); // ça ça clean le texte tapé dans l'entré 
