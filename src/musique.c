@@ -232,11 +232,13 @@ int Compare(char* str1, char* str2, size_t n)
 
 void on_entry_activated(GtkWidget *entry, Ui *appwdgt)
 {
+	GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(appwdgt->edit.TextS));
+	gtk_text_buffer_set_text(buffer, "Choose a command between:\n    - mute\n    - height\n    - clear\n    - exit\n et bientot d'autres\n", 15);
 	// tu peux utiliser cette chaine comme la chaine globale entrée :)
 	const gchar* chaine = gtk_entry_get_text(GTK_ENTRY(entry));
 
-	if (Compare((char*)(chaine),"reverb",6) == 0)
-        printf("You have called the reverb function wolla\n");
+	if (Compare((char*)(chaine),"mute",4) == 0)
+        Mute(appwdgt);
             
     if(Compare((char*)(chaine),"clear",5) == 0)
         gtk_editable_delete_text(GTK_EDITABLE(entry), 0, -1);
@@ -244,15 +246,25 @@ void on_entry_activated(GtkWidget *entry, Ui *appwdgt)
     if (Compare((char*)(chaine),"exit",4) == 0)
         gtk_main_quit();
 
-    if (Compare((char*)(chaine),"cut",3) == 0)
-        printf("You have called the cut function wolla\n");
+    if (Compare((char*)(chaine),"loop",4) == 0)
+	{
+		gtk_text_buffer_set_text(buffer, "", 0);
+		gtk_text_buffer_set_text(buffer, "1 for true and 0 for false\n", 27);
+		chaine = gtk_entry_get_text(GTK_ENTRY(entry));
+        Loop(appwdgt,(int)(strtol((char*)(chaine),NULL,10)));
+	}
+
+	if (Compare((char*)(chaine),"height",6) == 0)
+	{
+		gtk_text_buffer_set_text(buffer, "", 0);
+		gtk_text_buffer_set_text(buffer, "Input the coef of the height to change it change\n", 15);
+		chaine = gtk_entry_get_text(GTK_ENTRY(entry));
+        Height(appwdgt,strtof((char*)(chaine),NULL));
+	}
 
 	//ci-dessous, pour modifier le text du shell 
-	GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(appwdgt->edit.TextS));
-	gtk_text_buffer_set_text(buffer, "chaine à saisir", 15); //où 15 est la longueur de la chaineà set.	
-	gtk_text_buffer_set_text(buffer, "", 0);//et si tu veux clean le texte, tu mets ça
+	gtk_text_buffer_set_text(buffer, "", 0);
 	
-	//et pour ton instruction exit, tu peux utiliser gtk_main_quit(). ça fermera tout.
 	
 	gtk_editable_delete_text(GTK_EDITABLE(entry), 0, -1); // ça ça clean le texte tapé dans l'entré 
 }
@@ -305,7 +317,7 @@ void Volume(GtkWidget *slider, Ui *appwdgt)
 	FMOD_System_GetMasterChannelGroup(appwdgt->mus.system, &canal);
 	FMOD_ChannelGroup_SetVolume(canal, value);
 }
-//à mettre dans le shell
+
 void Mute(Ui* appwdgt)
 {
 	FMOD_CHANNELGROUP *canal;
@@ -324,7 +336,6 @@ void Mute(Ui* appwdgt)
 			FMOD_ChannelGroup_SetMute(canal, 1);
 	}
 }
-//à mettre dans le shell
 void Loop(Ui *appwdgt, int booleen)
 {
 	if (booleen)
