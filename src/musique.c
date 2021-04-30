@@ -230,35 +230,43 @@ int Compare(char* str1, char* str2, size_t n)
     return 0;
 }
 
+void Message(Ui *appwdgt)
+{
+
+	GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(appwdgt->edit.TextS));
+	gtk_text_buffer_set_text(buffer, "Choose a command between:\n    - mute\n    - loop\n    - height\n    - clear\n    - exit\n et bientot d'autres\n", 104);
+	g_source_remove(appwdgt->mus.save);
+}
+
 void on_entry_activated(GtkWidget *entry, Ui *appwdgt)
 {
 	GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(appwdgt->edit.TextS));
-	gtk_text_buffer_set_text(buffer, "Choose a command between:\n    - mute\n    - loop\n    - height\n    - clear\n    - exit\n et bientot d'autres\n", 104);
 	// tu peux utiliser cette chaine comme la chaine globale entrée :)
 	const gchar* chaine = gtk_entry_get_text(GTK_ENTRY(entry));
 
 	if (Compare((char*)(chaine),"mute",4) == 0)
-        Mute(appwdgt);
-            
-    if(Compare((char*)(chaine),"clear",5) == 0)
-        gtk_text_buffer_set_text(buffer, "", 0);
-
-    if (Compare((char*)(chaine),"exit",4) == 0)
-        gtk_main_quit();
-
-    if (Compare((char*)(chaine),"loop",4) == 0)
 	{
-		gtk_text_buffer_set_text(buffer, "", 0);
+        	Mute(appwdgt);
+		gtk_text_buffer_set_text(buffer, "The sound has been muted", 26);
+	}
+
+    	if (Compare((char*)(chaine),"exit",4) == 0)
+        	gtk_main_quit();
+
+    	if (Compare((char*)(chaine),"loop",4) == 0)
+	{
 		Loop(appwdgt,(int)(strtol((char*)(chaine+5),NULL,10)));
+		gtk_text_buffer_set_text(buffer, "The loop effect has been modified", 33);
 	}
 
 	if (Compare((char*)(chaine),"height",6) == 0)
 	{
-		gtk_text_buffer_set_text(buffer, "", 0);
 		Height(appwdgt,strtof((char*)(chaine+7),NULL));
+		gtk_text_buffer_set_text(buffer, "The height has been modified", 28);
 	}
 	
-	gtk_editable_delete_text(GTK_EDITABLE(entry), 0, -1); // ça ça clean le texte tapé dans l'entré 
+	gtk_editable_delete_text(GTK_EDITABLE(entry), 0, -1); // ça ça clean le texte tapé dans l'entré
+       appwdgt->mus.save = g_timeout_add_seconds(3, G_SOURCE_FUNC(Message), appwdgt);	
 }
 
 void Attach(Ui *appwdgt)
@@ -282,6 +290,8 @@ void Attach(Ui *appwdgt)
 	GtkWidget *zoneSpectre = gtk_drawing_area_new();
 	GtkWidget *TextS = gtk_text_view_new();
 	appwdgt->edit.TextS = TextS;
+	GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(appwdgt->edit.TextS));
+        gtk_text_buffer_set_text(buffer, "Choose a command between:\n    - mute\n    - loop\n    - height\n    - clear\n    - exit\n et bientot d'autres\n", 104);
 	GtkWidget *entry = gtk_entry_new();
 	g_signal_connect(entry, "activate", G_CALLBACK(on_entry_activated), appwdgt);
 	
