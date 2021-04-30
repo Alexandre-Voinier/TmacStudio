@@ -305,7 +305,7 @@ void Volume(GtkWidget *slider, Ui *appwdgt)
 	FMOD_System_GetMasterChannelGroup(appwdgt->mus.system, &canal);
 	FMOD_ChannelGroup_SetVolume(canal, value);
 }
-
+//à mettre dans le shell
 void Mute(Ui* appwdgt)
 {
 	FMOD_CHANNELGROUP *canal;
@@ -324,7 +324,7 @@ void Mute(Ui* appwdgt)
 			FMOD_ChannelGroup_SetMute(canal, 1);
 	}
 }
-
+//à mettre dans le shell
 void Loop(Ui *appwdgt, int booleen)
 {
 	if (booleen)
@@ -332,7 +332,7 @@ void Loop(Ui *appwdgt, int booleen)
 	else
 		FMOD_Sound_SetMode(appwdgt->mus.musique, FMOD_LOOP_OFF);
 }
-
+//à mettre dans le shell
 void Height(Ui *appwdgt, float coef)
 {
 	if (appwdgt->mus.height == NULL)
