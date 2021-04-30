@@ -22,14 +22,24 @@ typedef struct EditScreen
     GtkButton *replay_btn;
     GtkBox *grilleG;
     GtkBox *grille;
+    GtkWidget *TextS;
 }EditScreen;
 
 typedef struct MusStruct
 {
         FMOD_SYSTEM *system;
         FMOD_SOUND *musique;
+
 	int is_paused;
+	int is_recording;
+
+	FMOD_CREATESOUNDEXINFO exinfo;
 	unsigned int datalength;
+	unsigned int soundlength;
+	FILE* fd;
+	guint save;
+
+	FMOD_DSP *height;
 }MusStruct;
 
 
@@ -80,13 +90,23 @@ void Play(Ui *appwdgt);
 
 void Pause(Ui *appwdgt);
 
+void Save(Ui *appwdgt);
+
 void RecordStart(Ui *appwdgt);
 
 void RecordStop(Ui *appwdgt);
 
+void on_entry_activated(GtkWidget *entry, Ui *appwdgt);
+
 void Attach(Ui *appwdgt);
 
 void Volume(GtkWidget *slider, Ui *appwdgt);
+
+void Mute(Ui* appwdgt);
+
+void Loop(Ui *appwdgt, int booleen);
+
+void Height(Ui *appwdgt, float coef);
 
 void WriteWavHeader(FILE *fp, Ui *appwdgt, int length);
 
