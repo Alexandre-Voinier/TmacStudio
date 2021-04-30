@@ -233,7 +233,7 @@ int Compare(char* str1, char* str2, size_t n)
 void on_entry_activated(GtkWidget *entry, Ui *appwdgt)
 {
 	GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(appwdgt->edit.TextS));
-	gtk_text_buffer_set_text(buffer, "Choose a command between:\n    - mute\n    - height\n    - clear\n    - exit\n et bientot d'autres\n", 15);
+	gtk_text_buffer_set_text(buffer, "Choose a command between:\n    - mute\n    - loop\n    - height\n    - clear\n    - exit\n et bientot d'autres\n", 104);
 	// tu peux utiliser cette chaine comme la chaine globale entrée :)
 	const gchar* chaine = gtk_entry_get_text(GTK_ENTRY(entry));
 
@@ -241,7 +241,7 @@ void on_entry_activated(GtkWidget *entry, Ui *appwdgt)
         Mute(appwdgt);
             
     if(Compare((char*)(chaine),"clear",5) == 0)
-        gtk_editable_delete_text(GTK_EDITABLE(entry), 0, -1);
+        gtk_text_buffer_set_text(buffer, "", 0);
 
     if (Compare((char*)(chaine),"exit",4) == 0)
         gtk_main_quit();
@@ -251,20 +251,16 @@ void on_entry_activated(GtkWidget *entry, Ui *appwdgt)
 		gtk_text_buffer_set_text(buffer, "", 0);
 		gtk_text_buffer_set_text(buffer, "1 for true and 0 for false\n", 27);
 		chaine = gtk_entry_get_text(GTK_ENTRY(entry));
-        Loop(appwdgt,(int)(strtol((char*)(chaine),NULL,10)));
+        	Loop(appwdgt,(int)(strtol((char*)(chaine),NULL,10)));
 	}
 
 	if (Compare((char*)(chaine),"height",6) == 0)
 	{
 		gtk_text_buffer_set_text(buffer, "", 0);
-		gtk_text_buffer_set_text(buffer, "Input the coef of the height to change it change\n", 15);
+		gtk_text_buffer_set_text(buffer, "Input the coef of the height to change it change\n", 49);
 		chaine = gtk_entry_get_text(GTK_ENTRY(entry));
-        Height(appwdgt,strtof((char*)(chaine),NULL));
+        	Height(appwdgt,strtof((char*)(chaine),NULL));
 	}
-
-	//ci-dessous, pour modifier le text du shell 
-	gtk_text_buffer_set_text(buffer, "", 0);
-	
 	
 	gtk_editable_delete_text(GTK_EDITABLE(entry), 0, -1); // ça ça clean le texte tapé dans l'entré 
 }
