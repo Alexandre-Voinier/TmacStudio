@@ -44,12 +44,15 @@ typedef struct MusStruct
 	FMOD_DSP_PARAMETER_FFT *paramFFT;
 	int is_paused;
 	int is_recording;
+	int isloop;
 
 	FMOD_CREATESOUNDEXINFO exinfo;
 	unsigned int datalength;
 	unsigned int soundlength;
 	FILE* fd;
 	guint save;
+
+	guint check;
 
 	FMOD_DSP *height;
 }MusStruct;
@@ -125,4 +128,7 @@ void WriteWavHeader(FILE *fp, Ui *appwdgt, int length);
 
 void get_spectre(Ui *appwdgt);
 
+void clean_spectre(Ui *appwdgt);
+
+FMOD_RESULT F_CALLBACK end_of_sound(FMOD_CHANNELCONTROL *channelcontrol, FMOD_CHANNELCONTROL_TYPE controltype, FMOD_CHANNELCONTROL_CALLBACK_TYPE callbacktype, void *commanddata1, void *commanddata2);
 #endif

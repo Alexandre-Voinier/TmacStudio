@@ -168,6 +168,7 @@ void init_musStruct(Ui *appwdgt)
   	appwdgt->mus.musique = NULL;
 	appwdgt->mus.is_recording = 0;
 	appwdgt->mus.is_paused = 0;
+	appwdgt->mus.isloop = 0;
 	appwdgt->mus.fd = NULL;
 	appwdgt->mus.datalength = 0;
 	appwdgt->mus.soundlength = 0;

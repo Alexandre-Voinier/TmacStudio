@@ -5,47 +5,56 @@
 
 void Load(Ui *appwdgt, char* musique)
 {
-	FMOD_RESULT result;
-	FMOD_SOUND *musi;
+    FMOD_RESULT result;
+    FMOD_SOUND *musi;
 
-	int first = 0;
-	if (appwdgt->mus.musique != NULL)
+    int first = 0;
+    if (appwdgt->mus.musique != NULL)
+    {
+	FMOD_Sound_Release(appwdgt->mus.musique);
+	appwdgt->mus.soundlength = 0;
+	appwdgt->mus.datalength = 0;
+	appwdgt->mus.fd = NULL;
+	appwdgt->mus.save = 0;
+
+	if (appwdgt->mus.is_paused)
 	{
-		FMOD_Sound_Release(appwdgt->mus.musique);
-		appwdgt->mus.soundlength = 0;
-                appwdgt->mus.datalength = 0;
-                appwdgt->mus.fd = NULL;
-               	appwdgt->mus.save = 0;
-
-		if (appwdgt->mus.is_paused)
-		{
-			appwdgt->mus.is_paused = 0;
-			FMOD_ChannelGroup_SetPaused(appwdgt->mus.master, 0);
-		}
-		
-		FMOD_BOOL mute;
-		FMOD_ChannelGroup_GetMute(appwdgt->mus.master, &mute);
-		if (mute)
-			FMOD_ChannelGroup_SetMute(appwdgt->mus.master, 0);
+	    appwdgt->mus.is_paused = 0;
+	    FMOD_ChannelGroup_SetPaused(appwdgt->mus.master, 0);
 	}
-	else
-		first = 1;
 
-	result = FMOD_System_CreateSound(appwdgt->mus.system, musique, FMOD_CREATESTREAM, 0, &(musi));
-	if (result != FMOD_OK)
-		g_print("Couldn't load the sound\n");
-	else
+	FMOD_BOOL mute;
+	FMOD_ChannelGroup_GetMute(appwdgt->mus.master, &mute);
+	if (mute)
+	    FMOD_ChannelGroup_SetMute(appwdgt->mus.master, 0);
+
+	if (appwdgt->spectre.created)
 	{
-		if (first)
-			Attach(appwdgt);
-			
-		appwdgt->mus.musique = musi;
-		appwdgt->mus.is_paused = 0;
-		gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.play_btn), TRUE);
-        	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.pause_btn), TRUE);
-		gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.rec_btn), FALSE);
-                gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.stop_btn), FALSE);
+	    g_source_remove(appwdgt->spectre.timeout);
+	    FMOD_Channel_RemoveDSP(appwdgt->mus.channel, appwdgt->mus.dspFFT);
+	    FMOD_DSP_Release(appwdgt->mus.dspFFT);
+	    appwdgt->spectre.created = 0;
 	}
+
+    }
+    else
+	first = 1;
+
+    result = FMOD_System_CreateSound(appwdgt->mus.system, musique, FMOD_CREATESTREAM, 0, &(musi));
+    if (result != FMOD_OK)
+	g_print("Couldn't load the sound\n");
+    else
+    {
+	if (first)
+	    Attach(appwdgt);
+
+	appwdgt->mus.musique = musi;
+	appwdgt->mus.is_paused = 0;
+	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.play_btn), TRUE);
+	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.pause_btn), TRUE);
+	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.rec_btn), FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.stop_btn), FALSE);
+    }
 }
 
 void Play(Ui *appwdgt)
@@ -80,8 +89,12 @@ void Play(Ui *appwdgt)
 		    FMOD_System_CreateDSPByType(appwdgt->mus.system, FMOD_DSP_TYPE_FFT, &(appwdgt->mus.dspFFT));
 		    FMOD_Channel_AddDSP(appwdgt->mus.channel, -1, appwdgt->mus.dspFFT);
 		    FMOD_DSP_SetParameterInt(appwdgt->mus.dspFFT, FMOD_DSP_FFT_WINDOWSIZE, 1024);
-		    appwdgt->spectre.timeout = g_timeout_add(50, G_SOURCE_FUNC(get_spectre), appwdgt);
+		    appwdgt->spectre.timeout = g_timeout_add(150, G_SOURCE_FUNC(get_spectre), appwdgt);
 		}
+
+		FMOD_CHANNELCONTROL_CALLBACK callback = end_of_sound(
+		FMOD_Channel_SetCallback(appwdgt->mus.channel, (FMOD_CHANNELCONTROL_CALLBACK)end_of_sound((FMOD_CHANNELCONTROL *)(appwdgt->mus.channel), FMOD_CHANNELCONTROL_CHANNEL,
+			    FMOD_CHANNELCONTROL_CALLBACK_END, appwdgt, 0));
 	}
 }
 
@@ -97,7 +110,11 @@ void Pause(Ui *appwdgt)
 	else
 	{
         	FMOD_ChannelGroup_SetPaused(appwdgt->mus.master, 1);
-		FMOD_Channel_SetPaused(appwdgt->mus.channel, 1);
+		if (appwdgt->spectre.created)
+		{
+		    FMOD_Channel_SetPaused(appwdgt->mus.channel, 1);
+		    g_source_remove(appwdgt->spectre.timeout);
+		}
 		appwdgt->mus.is_paused = 1;
 	}
 }
@@ -472,4 +489,22 @@ void get_spectre(Ui *appwdgt)
 	appwdgt->spectre.rects[i].height *= (-1);
     }
     gtk_widget_queue_draw(appwdgt->spectre.visuSpectre);
+    printf("Aie aie aie\n");
+}
+
+FMOD_RESULT F_CALLBACK end_of_sound(FMOD_CHANNELCONTROL *channelcontrol, FMOD_CHANNELCONTROL_TYPE controltype,
+	FMOD_CHANNELCONTROL_CALLBACK_TYPE callbacktype, void *commanddata1, void *commanddata2)
+{
+    Ui *appwdgt = commanddata1;
+    if (appwdgt->mus.isloop)
+	Play(appwdgt);
+    else
+    {
+	g_source_remove(appwdgt->spectre.timeout);
+	FMOD_Channel_RemoveDSP(appwdgt->mus.channel, appwdgt->mus.dspFFT);
+	FMOD_DSP_Release(appwdgt->mus.dspFFT);
+	appwdgt->spectre.created = 0;
+	printf("STOP\n");
+    }
+
 }
