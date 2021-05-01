@@ -1,14 +1,12 @@
 #include <fmod.h>
 #include "../includes/ui.h"
+#include "../includes/callbacks.h"
 #include <stdio.h>
 
 void Load(Ui *appwdgt, char* musique)
 {
 	FMOD_RESULT result;
 	FMOD_SOUND *musi;
-
-	FMOD_CHANNELGROUP *canal;
-	FMOD_System_GetMasterChannelGroup(appwdgt->mus.system, &canal);
 
 	int first = 0;
 	if (appwdgt->mus.musique != NULL)
@@ -22,13 +20,13 @@ void Load(Ui *appwdgt, char* musique)
 		if (appwdgt->mus.is_paused)
 		{
 			appwdgt->mus.is_paused = 0;
-			FMOD_ChannelGroup_SetPaused(canal, 0);
+			FMOD_ChannelGroup_SetPaused(appwdgt->mus.master, 0);
 		}
 		
 		FMOD_BOOL mute;
-		FMOD_ChannelGroup_GetMute(canal, &mute);
+		FMOD_ChannelGroup_GetMute(appwdgt->mus.master, &mute);
 		if (mute)
-			FMOD_ChannelGroup_SetMute(canal, 0);
+			FMOD_ChannelGroup_SetMute(appwdgt->mus.master, 0);
 	}
 	else
 		first = 1;
@@ -52,33 +50,54 @@ void Load(Ui *appwdgt, char* musique)
 
 void Play(Ui *appwdgt)
 {
-	FMOD_CHANNELGROUP *canal;
-        FMOD_System_GetMasterChannelGroup(appwdgt->mus.system, &canal);
 
 	if (appwdgt->mus.musique != NULL)
 	{
 		if (appwdgt->mus.is_paused)
 		{
-			FMOD_ChannelGroup_SetPaused(canal, 0);
+			FMOD_ChannelGroup_SetPaused(appwdgt->mus.master, 0);
+			FMOD_Channel_SetPaused(appwdgt->mus.channel, 0);
                 	appwdgt->mus.is_paused = 0;
 		}	
-		FMOD_System_PlaySound(appwdgt->mus.system, appwdgt->mus.musique, 0, 0, NULL);
+		if (appwdgt->spectre.created)
+		{
+		    g_source_remove(appwdgt->spectre.timeout);
+		    FMOD_Channel_RemoveDSP(appwdgt->mus.channel,
+			    appwdgt->mus.dspFFT);
+		    FMOD_DSP_Release(appwdgt->mus.dspFFT);
+		    appwdgt->spectre.created = 0;
+		}
+
+		FMOD_System_PlaySound(appwdgt->mus.system, appwdgt->mus.musique, appwdgt->mus.master, 0,
+			&(appwdgt->mus.channel));
+
+		float volume;
+		FMOD_ChannelGroup_GetVolume(appwdgt->mus.master, &volume);
+		FMOD_Channel_SetVolume(appwdgt->mus.channel, volume);
+		if(!appwdgt->spectre.created)
+		{
+		    appwdgt->spectre.created = 1;
+		    FMOD_System_CreateDSPByType(appwdgt->mus.system, FMOD_DSP_TYPE_FFT, &(appwdgt->mus.dspFFT));
+		    FMOD_Channel_AddDSP(appwdgt->mus.channel, -1, appwdgt->mus.dspFFT);
+		    FMOD_DSP_SetParameterInt(appwdgt->mus.dspFFT, FMOD_DSP_FFT_WINDOWSIZE, 1024);
+		    appwdgt->spectre.timeout = g_timeout_add(50, G_SOURCE_FUNC(get_spectre), appwdgt);
+		}
 	}
 }
 
 void Pause(Ui *appwdgt)
 {
-	FMOD_CHANNELGROUP *canal;
-        FMOD_System_GetMasterChannelGroup(appwdgt->mus.system, &canal);
 
 	if (appwdgt->mus.is_paused)
 	{
-		FMOD_ChannelGroup_SetPaused(canal, 0);
+		FMOD_ChannelGroup_SetPaused(appwdgt->mus.master, 0);
+		FMOD_Channel_SetPaused(appwdgt->mus.channel, 0);
 		appwdgt->mus.is_paused = 0;
 	}
 	else
 	{
-        	FMOD_ChannelGroup_SetPaused(canal, 1);
+        	FMOD_ChannelGroup_SetPaused(appwdgt->mus.master, 1);
+		FMOD_Channel_SetPaused(appwdgt->mus.channel, 1);
 		appwdgt->mus.is_paused = 1;
 	}
 }
@@ -286,8 +305,15 @@ void Attach(Ui *appwdgt)
 	//On s'occupe du shell et du spectre
 	GtkWidget *new2 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
 	GtkWidget *shell = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-	
-	GtkWidget *zoneSpectre = gtk_drawing_area_new();
+	for (int i = 0; i < 512; i++)
+	{
+	    appwdgt->spectre.rects[i].x = 0;
+	    appwdgt->spectre.rects[i].y = 0;
+	    appwdgt->spectre.rects[i].width = 0;
+	    appwdgt->spectre.rects[i].height = 0;
+	}
+	appwdgt->spectre.visuSpectre = gtk_drawing_area_new();
+	g_signal_connect(appwdgt->spectre.visuSpectre, "draw", G_CALLBACK(on_draw_spectrum), appwdgt);
 	GtkWidget *TextS = gtk_text_view_new();
 	appwdgt->edit.TextS = TextS;
 	GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(appwdgt->edit.TextS));
@@ -297,16 +323,14 @@ void Attach(Ui *appwdgt)
 	
 	gtk_box_pack_start(GTK_BOX(shell), TextS, TRUE, TRUE, 0);
 	gtk_box_pack_start(GTK_BOX(shell), entry, FALSE, FALSE, 0);
-	gtk_box_pack_start(GTK_BOX(new2), zoneSpectre, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(new2), appwdgt->spectre.visuSpectre, TRUE, TRUE, 0);
 	gtk_box_pack_start(GTK_BOX(new2), shell, TRUE, TRUE, 0);
 
 	//ici on ajouter les deux nouvelles zones sous les boutons
 	gtk_box_pack_start(appwdgt->edit.grille, new1, TRUE, TRUE, 0);
 	gtk_box_pack_start(appwdgt->edit.grille, new2, TRUE, TRUE, 0);
 	
-	FMOD_CHANNELGROUP *canal;
-        FMOD_System_GetMasterChannelGroup(appwdgt->mus.system, &canal);
-        FMOD_ChannelGroup_SetVolume(canal, 0);
+        FMOD_ChannelGroup_SetVolume(appwdgt->mus.master, 0);
 
 	gtk_widget_show_all(GTK_WIDGET(appwdgt->edit.window));
 }
@@ -315,49 +339,55 @@ void Attach(Ui *appwdgt)
 void Volume(GtkWidget *slider, Ui *appwdgt)
 {
 	float value = gtk_range_get_value(GTK_RANGE(slider)); 
-	FMOD_CHANNELGROUP *canal;
-	FMOD_System_GetMasterChannelGroup(appwdgt->mus.system, &canal);
-	FMOD_ChannelGroup_SetVolume(canal, value);
+	FMOD_ChannelGroup_SetVolume(appwdgt->mus.master, value);
+	if (appwdgt->spectre.created)
+	    FMOD_Channel_SetVolume(appwdgt->mus.channel, value);
 }
 
 void Mute(Ui* appwdgt)
 {
-	FMOD_CHANNELGROUP *canal;
-        FMOD_System_GetMasterChannelGroup(appwdgt->mus.system, &canal);
-        FMOD_RESULT result;
-	FMOD_BOOL mute;
+    FMOD_RESULT result;
+    FMOD_BOOL mute;
 
-	result = FMOD_ChannelGroup_GetMute(canal, &mute);
-	if (result != FMOD_OK)
-                g_print("error while getting the mute's mode\n");
+    result = FMOD_ChannelGroup_GetMute(appwdgt->mus.master, &mute);
+    if (result != FMOD_OK)
+	g_print("error while getting the mute's mode\n");
+    else
+    {
+	if (mute)
+	{
+	    FMOD_ChannelGroup_SetMute(appwdgt->mus.master, 0);
+	    if (appwdgt->spectre.created)
+		FMOD_Channel_SetMute(appwdgt->mus.channel, 0);
+	}
 	else
 	{
-		if (mute)
-			FMOD_ChannelGroup_SetMute(canal, 0);
-		else
-			FMOD_ChannelGroup_SetMute(canal, 1);
+	    FMOD_ChannelGroup_SetMute(appwdgt->mus.master, 1);
+	    if (appwdgt->spectre.created)
+		FMOD_Channel_SetMute(appwdgt->mus.channel, 1);
 	}
+    }
 }
 void Loop(Ui *appwdgt, int booleen)
 {
-	if (booleen)
-		FMOD_Sound_SetMode(appwdgt->mus.musique, FMOD_LOOP_NORMAL);
-	else
-		FMOD_Sound_SetMode(appwdgt->mus.musique, FMOD_LOOP_OFF);
+    if (booleen)
+	FMOD_Sound_SetMode(appwdgt->mus.musique, FMOD_LOOP_NORMAL);
+    else
+	FMOD_Sound_SetMode(appwdgt->mus.musique, FMOD_LOOP_OFF);
 }
 //à mettre dans le shell
 void Height(Ui *appwdgt, float coef)
 {
-	if (appwdgt->mus.height == NULL)
-	{
-		FMOD_DSP *height;
-		FMOD_System_CreateDSPByType(appwdgt->mus.system, FMOD_DSP_TYPE_PITCHSHIFT, &height);
-		appwdgt->mus.height = height;
-		FMOD_CHANNELGROUP *canal;
-        	FMOD_System_GetMasterChannelGroup(appwdgt->mus.system, &canal);
-		FMOD_ChannelGroup_AddDSP(canal, FMOD_CHANNELCONTROL_DSP_TAIL, appwdgt->mus.height);
-	}
-	FMOD_DSP_SetParameterFloat(appwdgt->mus.height, 0, coef);
+    if (appwdgt->mus.height == NULL)
+    {
+	FMOD_DSP *height;
+	FMOD_System_CreateDSPByType(appwdgt->mus.system, FMOD_DSP_TYPE_PITCHSHIFT, &height);
+	appwdgt->mus.height = height;
+	FMOD_ChannelGroup_AddDSP(appwdgt->mus.master, FMOD_CHANNELCONTROL_DSP_TAIL, appwdgt->mus.height);
+	if (appwdgt->spectre.created)
+	    FMOD_Channel_AddDSP(appwdgt->mus.channel, FMOD_CHANNELCONTROL_DSP_TAIL, appwdgt->mus.height);
+    }
+    FMOD_DSP_SetParameterFloat(appwdgt->mus.height, 0, coef);
 }
 
 void WriteWavHeader(FILE *fp, Ui *appwdgt, int length)
@@ -419,3 +449,27 @@ void WriteWavHeader(FILE *fp, Ui *appwdgt, int length)
     	//}
 }
 
+void get_spectre(Ui *appwdgt)
+{
+    FMOD_DSP_GetParameterData(appwdgt->mus.dspFFT, FMOD_DSP_FFT_SPECTRUMDATA,
+	    (void **)&(appwdgt->mus.paramFFT), 0, 0, 0);
+    int width, height, xs;
+    width = gtk_widget_get_allocated_width(appwdgt->spectre.visuSpectre);
+    height = gtk_widget_get_allocated_height(appwdgt->spectre.visuSpectre);
+    xs = width / 512;
+    for (int i = 0; i < 512; i++)
+    {
+	float value = appwdgt->mus.paramFFT->spectrum[0][i] * 20;
+
+	appwdgt->spectre.rects[i].x = i * xs;
+	appwdgt->spectre.rects[i].y = height;
+	appwdgt->spectre.rects[i].width = xs;
+	appwdgt->spectre.rects[i].height = (int)(value * (height / 5)) * 2;
+
+	if (appwdgt->spectre.rects[i].height > height)
+	    appwdgt->spectre.rects[i].height = height;
+
+	appwdgt->spectre.rects[i].height *= (-1);
+    }
+    gtk_widget_queue_draw(appwdgt->spectre.visuSpectre);
+}

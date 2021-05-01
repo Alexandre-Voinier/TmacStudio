@@ -156,15 +156,15 @@ void init_edit_screen(Ui *appwdgt)
 
 void init_musStruct(Ui *appwdgt)
 {
-	FMOD_SYSTEM *systemNew;
-	FMOD_System_Create(&systemNew);
-	FMOD_System_Init(systemNew, 2, FMOD_INIT_NORMAL, NULL);
+	FMOD_System_Create(&(appwdgt->mus.system));
+	FMOD_System_Init(appwdgt->mus.system, 2, FMOD_INIT_NORMAL, NULL);
+	FMOD_System_GetMasterChannelGroup(appwdgt->mus.system,
+		&(appwdgt->mus.master));
 
 	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.play_btn), FALSE);
         gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.pause_btn), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.rec_btn), TRUE);
 	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.stop_btn), FALSE);
-	appwdgt->mus.system = systemNew;
   	appwdgt->mus.musique = NULL;
 	appwdgt->mus.is_recording = 0;
 	appwdgt->mus.is_paused = 0;
@@ -172,5 +172,7 @@ void init_musStruct(Ui *appwdgt)
 	appwdgt->mus.datalength = 0;
 	appwdgt->mus.soundlength = 0;
 	appwdgt->mus.height = NULL;
+	appwdgt->spectre.created = 0;
+	
 }
 

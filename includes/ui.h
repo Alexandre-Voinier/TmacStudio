@@ -25,11 +25,23 @@ typedef struct EditScreen
     GtkWidget *TextS;
 }EditScreen;
 
+typedef struct Spectre
+{
+    GtkWidget *visuSpectre;
+    GdkRectangle rects[512];
+    int created;
+    guint timeout;
+}Spectre;
+
 typedef struct MusStruct
 {
         FMOD_SYSTEM *system;
         FMOD_SOUND *musique;
 
+	FMOD_CHANNEL *channel;
+	FMOD_CHANNELGROUP *master;
+	FMOD_DSP *dspFFT;
+	FMOD_DSP_PARAMETER_FFT *paramFFT;
 	int is_paused;
 	int is_recording;
 
@@ -55,6 +67,7 @@ typedef struct Ui
     // Screens
     SplashStruct splash;
     EditScreen edit;
+    Spectre spectre;
 
     MusStruct mus;
 }Ui;
@@ -109,5 +122,7 @@ void Loop(Ui *appwdgt, int booleen);
 void Height(Ui *appwdgt, float coef);
 
 void WriteWavHeader(FILE *fp, Ui *appwdgt, int length);
+
+void get_spectre(Ui *appwdgt);
 
 #endif

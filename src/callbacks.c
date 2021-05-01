@@ -119,6 +119,22 @@ void on_stop_btn_clicked(GtkButton *btn, Ui *appwdgt)
 	RecordStop(appwdgt);
 }
 
+void on_draw_spectrum(GtkWidget *drawarea, cairo_t *cr, Ui *appwdgt)
+{
+    cairo_set_source_rgb(cr, 1, 1, 1);
+    cairo_paint(cr);
+    if (appwdgt->spectre.created)
+    {
+	cairo_set_source_rgb(cr, 1, 0, 0);
+	for (int i = 0; i < 512; i++)
+	{
+	    GdkRectangle rect = appwdgt->spectre.rects[i];
+	    cairo_rectangle(cr, rect.x, rect.y, rect.width, rect.height);
+	    cairo_fill(cr);
+	}
+    }
+}
+
 //============================= End Function =================================//
 void on_window_destroy()
 {
