@@ -89,12 +89,8 @@ void Play(Ui *appwdgt)
 		    FMOD_System_CreateDSPByType(appwdgt->mus.system, FMOD_DSP_TYPE_FFT, &(appwdgt->mus.dspFFT));
 		    FMOD_Channel_AddDSP(appwdgt->mus.channel, -1, appwdgt->mus.dspFFT);
 		    FMOD_DSP_SetParameterInt(appwdgt->mus.dspFFT, FMOD_DSP_FFT_WINDOWSIZE, 1024);
-		    appwdgt->spectre.timeout = g_timeout_add(150, G_SOURCE_FUNC(get_spectre), appwdgt);
+		    appwdgt->spectre.timeout = g_timeout_add(50, G_SOURCE_FUNC(get_spectre), appwdgt);
 		}
-
-		FMOD_CHANNELCONTROL_CALLBACK callback = end_of_sound(
-		FMOD_Channel_SetCallback(appwdgt->mus.channel, (FMOD_CHANNELCONTROL_CALLBACK)end_of_sound((FMOD_CHANNELCONTROL *)(appwdgt->mus.channel), FMOD_CHANNELCONTROL_CHANNEL,
-			    FMOD_CHANNELCONTROL_CALLBACK_END, appwdgt, 0));
 	}
 }
 
@@ -104,17 +100,16 @@ void Pause(Ui *appwdgt)
 	if (appwdgt->mus.is_paused)
 	{
 		FMOD_ChannelGroup_SetPaused(appwdgt->mus.master, 0);
-		FMOD_Channel_SetPaused(appwdgt->mus.channel, 0);
+		if (appwdgt->spectre.created)
+		    FMOD_Channel_SetPaused(appwdgt->mus.channel, 0);
 		appwdgt->mus.is_paused = 0;
 	}
 	else
 	{
         	FMOD_ChannelGroup_SetPaused(appwdgt->mus.master, 1);
 		if (appwdgt->spectre.created)
-		{
 		    FMOD_Channel_SetPaused(appwdgt->mus.channel, 1);
-		    g_source_remove(appwdgt->spectre.timeout);
-		}
+		
 		appwdgt->mus.is_paused = 1;
 	}
 }
@@ -388,9 +383,9 @@ void Mute(Ui* appwdgt)
 void Loop(Ui *appwdgt, int booleen)
 {
     if (booleen)
-	FMOD_Sound_SetMode(appwdgt->mus.musique, FMOD_LOOP_NORMAL);
+	appwdgt->mus.isloop = 1;
     else
-	FMOD_Sound_SetMode(appwdgt->mus.musique, FMOD_LOOP_OFF);
+	appwdgt->mus.isloop = 0;
 }
 //à mettre dans le shell
 void Height(Ui *appwdgt, float coef)
@@ -468,34 +463,41 @@ void WriteWavHeader(FILE *fp, Ui *appwdgt, int length)
 
 void get_spectre(Ui *appwdgt)
 {
-    FMOD_DSP_GetParameterData(appwdgt->mus.dspFFT, FMOD_DSP_FFT_SPECTRUMDATA,
-	    (void **)&(appwdgt->mus.paramFFT), 0, 0, 0);
-    int width, height, xs;
-    width = gtk_widget_get_allocated_width(appwdgt->spectre.visuSpectre);
-    height = gtk_widget_get_allocated_height(appwdgt->spectre.visuSpectre);
-    xs = width / 512;
-    for (int i = 0; i < 512; i++)
+    unsigned int ip;
+    FMOD_Channel_IsPlaying(appwdgt->mus.channel, &ip);
+    printf("Is Playing: %d\n", ip);
+    if (!ip)
+	clean_spectre(appwdgt);
+    else
     {
-	float value = appwdgt->mus.paramFFT->spectrum[0][i] * 20;
+	g_source_remove(appwdgt->spectre.timeout);
+	appwdgt->spectre.timeout= g_timeout_add(50, G_SOURCE_FUNC(get_spectre), appwdgt);
+	FMOD_DSP_GetParameterData(appwdgt->mus.dspFFT, FMOD_DSP_FFT_SPECTRUMDATA,
+		(void **)&(appwdgt->mus.paramFFT), 0, 0, 0);
+	int width, height, xs;
+	width = gtk_widget_get_allocated_width(appwdgt->spectre.visuSpectre);
+	height = gtk_widget_get_allocated_height(appwdgt->spectre.visuSpectre);
+	xs = width / 512;
+	for (int i = 0; i < 512; i++)
+	{
+	    float value = appwdgt->mus.paramFFT->spectrum[0][i] * 20;
 
-	appwdgt->spectre.rects[i].x = i * xs;
-	appwdgt->spectre.rects[i].y = height;
-	appwdgt->spectre.rects[i].width = xs;
-	appwdgt->spectre.rects[i].height = (int)(value * (height / 5)) * 2;
+	    appwdgt->spectre.rects[i].x = i * xs;
+	    appwdgt->spectre.rects[i].y = height;
+	    appwdgt->spectre.rects[i].width = xs;
+	    appwdgt->spectre.rects[i].height = (int)(value * (height / 5)) * 2;
 
-	if (appwdgt->spectre.rects[i].height > height)
-	    appwdgt->spectre.rects[i].height = height;
+	    if (appwdgt->spectre.rects[i].height > height)
+		appwdgt->spectre.rects[i].height = height;
 
-	appwdgt->spectre.rects[i].height *= (-1);
+	    appwdgt->spectre.rects[i].height *= (-1);
+	}
+	gtk_widget_queue_draw(appwdgt->spectre.visuSpectre);
     }
-    gtk_widget_queue_draw(appwdgt->spectre.visuSpectre);
-    printf("Aie aie aie\n");
 }
-
-FMOD_RESULT F_CALLBACK end_of_sound(FMOD_CHANNELCONTROL *channelcontrol, FMOD_CHANNELCONTROL_TYPE controltype,
-	FMOD_CHANNELCONTROL_CALLBACK_TYPE callbacktype, void *commanddata1, void *commanddata2)
+void clean_spectre(Ui *appwdgt)
 {
-    Ui *appwdgt = commanddata1;
+    printf("CLEANNN\n");
     if (appwdgt->mus.isloop)
 	Play(appwdgt);
     else
@@ -504,7 +506,5 @@ FMOD_RESULT F_CALLBACK end_of_sound(FMOD_CHANNELCONTROL *channelcontrol, FMOD_CH
 	FMOD_Channel_RemoveDSP(appwdgt->mus.channel, appwdgt->mus.dspFFT);
 	FMOD_DSP_Release(appwdgt->mus.dspFFT);
 	appwdgt->spectre.created = 0;
-	printf("STOP\n");
     }
-
 }

@@ -130,5 +130,4 @@ void get_spectre(Ui *appwdgt);
 
 void clean_spectre(Ui *appwdgt);
 
-FMOD_RESULT F_CALLBACK end_of_sound(FMOD_CHANNELCONTROL *channelcontrol, FMOD_CHANNELCONTROL_TYPE controltype, FMOD_CHANNELCONTROL_CALLBACK_TYPE callbacktype, void *commanddata1, void *commanddata2);
 #endif
