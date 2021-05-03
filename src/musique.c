@@ -465,7 +465,6 @@ void get_spectre(Ui *appwdgt)
 {
     unsigned int ip;
     FMOD_Channel_IsPlaying(appwdgt->mus.channel, &ip);
-    printf("Is Playing: %d\n", ip);
     if (!ip)
 	clean_spectre(appwdgt);
     else
@@ -497,7 +496,6 @@ void get_spectre(Ui *appwdgt)
 }
 void clean_spectre(Ui *appwdgt)
 {
-    printf("CLEANNN\n");
     if (appwdgt->mus.isloop)
 	Play(appwdgt);
     else
