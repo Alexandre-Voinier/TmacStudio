@@ -185,7 +185,7 @@ void RecordStart(Ui *appwdgt)
     		exinfo.numchannels = 1;
     		exinfo.format = FMOD_SOUND_FORMAT_PCM16;
     		exinfo.defaultfrequency = 44100;
-    		exinfo.length = exinfo.defaultfrequency * sizeof(short) * exinfo.numchannels * 250;
+    		exinfo.length = exinfo.defaultfrequency * sizeof(short) * exinfo.numchannels * 3;
 		appwdgt->mus.exinfo = exinfo;
 
 		FMOD_RESULT result;
