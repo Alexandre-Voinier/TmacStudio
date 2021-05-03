@@ -31,6 +31,8 @@ typedef struct Spectre
     GdkRectangle rects[512];
     int created;
     guint timeout;
+    int hasheight;
+    int isgetting;
 }Spectre;
 
 typedef struct MusStruct
@@ -55,6 +57,7 @@ typedef struct MusStruct
 	guint check;
 
 	FMOD_DSP *height;
+	float coeff;
 }MusStruct;
 
 
@@ -130,4 +133,5 @@ void get_spectre(Ui *appwdgt);
 
 void clean_spectre(Ui *appwdgt);
 
+void set_height(Ui *appwdgt);
 #endif
