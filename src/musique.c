@@ -479,24 +479,27 @@ void get_spectre(Ui *appwdgt)
 		xs = width / 512;
 		for (int i = 0; i < 512; i++)
 		{
-			float value = appwdgt->mus.paramFFT->spectrum[0][i] * 20;
+			
+			if (appwdgt->mus.paramFFT->spectrum[0] != NULL)
+			{
+				float value = appwdgt->mus.paramFFT->spectrum[0][i] * 20;
 
-			appwdgt->spectre.rects[i].x = i * xs;
-			appwdgt->spectre.rects[i].y = height;
-			appwdgt->spectre.rects[i].width = xs;
-			appwdgt->spectre.rects[i].height = (int)(value * (height / 5)) * 2;
+				appwdgt->spectre.rects[i].x = i * xs;
+				appwdgt->spectre.rects[i].y = height;
+				appwdgt->spectre.rects[i].width = xs;
+				appwdgt->spectre.rects[i].height = (int)(value * (height / 5)) * 2;
 
-			if (appwdgt->spectre.rects[i].height > height)
-				appwdgt->spectre.rects[i].height = height;
+				if (appwdgt->spectre.rects[i].height > height)
+					appwdgt->spectre.rects[i].height = height;
 
-			appwdgt->spectre.rects[i].height *= (-1);
+				appwdgt->spectre.rects[i].height *= (-1);
+			}
 		}
 		gtk_widget_queue_draw(appwdgt->spectre.visuSpectre);
 	}
 	FMOD_BOOL mute;
 	FMOD_ChannelGroup_GetMute(appwdgt->mus.master, &mute);
 	FMOD_Channel_SetMute(appwdgt->mus.channel, mute);
-
 
 	if (appwdgt->mus.height != NULL)
 		FMOD_Channel_AddDSP(appwdgt->mus.channel, FMOD_CHANNELCONTROL_DSP_TAIL, appwdgt->mus.height);
