@@ -279,7 +279,7 @@ void Message(Ui *appwdgt)
 {
 
 	GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(appwdgt->edit.TextS));
-	gtk_text_buffer_set_text(buffer, "Choose a command between:\n    - mute\n    - loop\n    - height\n    - clear\n    - exit\n et bientot d'autres\n", 104);
+	gtk_text_buffer_set_text(buffer, "Choose a command between:\n    -play\n    -pause\n    -rec\n    -recstop\n    - mute\n    - loop\n    - height\n    - clear\n    - exit\n", 127);
 	g_source_remove(appwdgt->mus.save);
 }
 
@@ -288,26 +288,52 @@ void on_entry_activated(GtkWidget *entry, Ui *appwdgt)
 	GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(appwdgt->edit.TextS));
 	// tu peux utiliser cette chaine comme la chaine globale entrée :)
 	const gchar* chaine = gtk_entry_get_text(GTK_ENTRY(entry));
-
-	if (Compare((char*)(chaine),"mute",4) == 0)
+	if (Compare((char*)(chaine),"recstop",7) == 0)
+		RecordStop(appwdgt);
+	else
 	{
-        	Mute(appwdgt);
-		gtk_text_buffer_set_text(buffer, "The sound has been muted", 26);
-	}
+		if (Compare((char*)(chaine),"rec",3) == 0)
+			RecordStart(appwdgt);
+		else
+		{
+			if (Compare((char*)(chaine),"pause",5) == 0)
+				Pause(appwdgt);
+			else
+			{
+				if (Compare((char*)(chaine),"play",4) == 0)
+					Play(appwdgt);
+				else
+				{
+					if (Compare((char*)(chaine),"mute",4) == 0)
+					{
+							Mute(appwdgt);
+						gtk_text_buffer_set_text(buffer, "The sound has been muted", 26);
+					}
+					else
+					{
+						if (Compare((char*)(chaine),"exit",4) == 0)
+							gtk_main_quit();
 
-    	if (Compare((char*)(chaine),"exit",4) == 0)
-        	gtk_main_quit();
-
-    	if (Compare((char*)(chaine),"loop",4) == 0)
-	{
-		Loop(appwdgt,(int)(strtol((char*)(chaine+5),NULL,10)));
-		gtk_text_buffer_set_text(buffer, "The loop effect has been modified", 33);
-	}
-
-	if (Compare((char*)(chaine),"height",6) == 0)
-	{
-		Height(appwdgt,strtof((char*)(chaine+7),NULL));
-		gtk_text_buffer_set_text(buffer, "The height has been modified", 28);
+						else
+						{
+							if (Compare((char*)(chaine),"loop",4) == 0)
+							{
+								Loop(appwdgt,(int)(strtol((char*)(chaine+5),NULL,10)));
+								gtk_text_buffer_set_text(buffer, "The loop effect has been modified", 33);
+							}
+							else
+							{
+								if (Compare((char*)(chaine),"height",6) == 0)
+								{
+									Height(appwdgt,strtof((char*)(chaine+7),NULL));
+									gtk_text_buffer_set_text(buffer, "The height has been modified", 28);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 	
 	gtk_editable_delete_text(GTK_EDITABLE(entry), 0, -1); // ça ça clean le texte tapé dans l'entré
