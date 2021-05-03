@@ -66,30 +66,30 @@ void Play(Ui *appwdgt)
 		{
 			FMOD_ChannelGroup_SetPaused(appwdgt->mus.master, 0);
 			FMOD_Channel_SetPaused(appwdgt->mus.channel, 0);
-                	appwdgt->mus.is_paused = 0;
+			appwdgt->mus.is_paused = 0;
 		}	
 		if (appwdgt->spectre.created)
 		{
-		    g_source_remove(appwdgt->spectre.timeout);
-		    FMOD_Channel_RemoveDSP(appwdgt->mus.channel,
-			    appwdgt->mus.dspFFT);
-		    FMOD_DSP_Release(appwdgt->mus.dspFFT);
-		    appwdgt->spectre.created = 0;
+			g_source_remove(appwdgt->spectre.timeout);
+			FMOD_Channel_RemoveDSP(appwdgt->mus.channel,
+					appwdgt->mus.dspFFT);
+			FMOD_DSP_Release(appwdgt->mus.dspFFT);
+			appwdgt->spectre.created = 0;
 		}
 
 		FMOD_System_PlaySound(appwdgt->mus.system, appwdgt->mus.musique, appwdgt->mus.master, 0,
-			&(appwdgt->mus.channel));
+				&(appwdgt->mus.channel));
 
 		float volume;
 		FMOD_ChannelGroup_GetVolume(appwdgt->mus.master, &volume);
 		FMOD_Channel_SetVolume(appwdgt->mus.channel, volume);
 		if(!appwdgt->spectre.created)
 		{
-		    appwdgt->spectre.created = 1;
-		    FMOD_System_CreateDSPByType(appwdgt->mus.system, FMOD_DSP_TYPE_FFT, &(appwdgt->mus.dspFFT));
-		    FMOD_Channel_AddDSP(appwdgt->mus.channel, -1, appwdgt->mus.dspFFT);
-		    FMOD_DSP_SetParameterInt(appwdgt->mus.dspFFT, FMOD_DSP_FFT_WINDOWSIZE, 1024);
-		    appwdgt->spectre.timeout = g_timeout_add(50, G_SOURCE_FUNC(get_spectre), appwdgt);
+			appwdgt->spectre.created = 1;
+			FMOD_System_CreateDSPByType(appwdgt->mus.system, FMOD_DSP_TYPE_FFT, &(appwdgt->mus.dspFFT));
+			FMOD_Channel_AddDSP(appwdgt->mus.channel, FMOD_CHANNELCONTROL_DSP_HEAD, appwdgt->mus.dspFFT);
+			FMOD_DSP_SetParameterInt(appwdgt->mus.dspFFT, FMOD_DSP_FFT_WINDOWSIZE, 1024);
+			appwdgt->spectre.timeout = g_timeout_add(50, G_SOURCE_FUNC(get_spectre), appwdgt);
 		}
 	}
 }
@@ -396,8 +396,8 @@ void Height(Ui *appwdgt, float coef)
 	FMOD_System_CreateDSPByType(appwdgt->mus.system, FMOD_DSP_TYPE_PITCHSHIFT, &height);
 	appwdgt->mus.height = height;
 	FMOD_ChannelGroup_AddDSP(appwdgt->mus.master, FMOD_CHANNELCONTROL_DSP_TAIL, appwdgt->mus.height);
-	if (appwdgt->spectre.created)
-	    FMOD_Channel_AddDSP(appwdgt->mus.channel, FMOD_CHANNELCONTROL_DSP_TAIL, appwdgt->mus.height);
+	if (appwdgt->spectre.created = 1)
+		FMOD_Channel_AddDSP(appwdgt->mus.channel, FMOD_CHANNELCONTROL_DSP_TAIL, appwdgt->mus.height);
     }
     FMOD_DSP_SetParameterFloat(appwdgt->mus.height, 0, coef);
 }
@@ -463,36 +463,44 @@ void WriteWavHeader(FILE *fp, Ui *appwdgt, int length)
 
 void get_spectre(Ui *appwdgt)
 {
-    unsigned int ip;
-    FMOD_Channel_IsPlaying(appwdgt->mus.channel, &ip);
-    if (!ip)
-	clean_spectre(appwdgt);
-    else
-    {
-	g_source_remove(appwdgt->spectre.timeout);
-	appwdgt->spectre.timeout= g_timeout_add(50, G_SOURCE_FUNC(get_spectre), appwdgt);
-	FMOD_DSP_GetParameterData(appwdgt->mus.dspFFT, FMOD_DSP_FFT_SPECTRUMDATA,
-		(void **)&(appwdgt->mus.paramFFT), 0, 0, 0);
-	int width, height, xs;
-	width = gtk_widget_get_allocated_width(appwdgt->spectre.visuSpectre);
-	height = gtk_widget_get_allocated_height(appwdgt->spectre.visuSpectre);
-	xs = width / 512;
-	for (int i = 0; i < 512; i++)
+	unsigned int ip;
+	FMOD_Channel_IsPlaying(appwdgt->mus.channel, &ip);
+	if (!ip)
+		clean_spectre(appwdgt);
+	else
 	{
-	    float value = appwdgt->mus.paramFFT->spectrum[0][i] * 20;
+		g_source_remove(appwdgt->spectre.timeout);
+		appwdgt->spectre.timeout= g_timeout_add(50, G_SOURCE_FUNC(get_spectre), appwdgt);
+		FMOD_DSP_GetParameterData(appwdgt->mus.dspFFT, FMOD_DSP_FFT_SPECTRUMDATA,
+				(void **)&(appwdgt->mus.paramFFT), 0, 0, 0);
+		int width, height, xs;
+		width = gtk_widget_get_allocated_width(appwdgt->spectre.visuSpectre);
+		height = gtk_widget_get_allocated_height(appwdgt->spectre.visuSpectre);
+		xs = width / 512;
+		for (int i = 0; i < 512; i++)
+		{
+			float value = appwdgt->mus.paramFFT->spectrum[0][i] * 20;
 
-	    appwdgt->spectre.rects[i].x = i * xs;
-	    appwdgt->spectre.rects[i].y = height;
-	    appwdgt->spectre.rects[i].width = xs;
-	    appwdgt->spectre.rects[i].height = (int)(value * (height / 5)) * 2;
+			appwdgt->spectre.rects[i].x = i * xs;
+			appwdgt->spectre.rects[i].y = height;
+			appwdgt->spectre.rects[i].width = xs;
+			appwdgt->spectre.rects[i].height = (int)(value * (height / 5)) * 2;
 
-	    if (appwdgt->spectre.rects[i].height > height)
-		appwdgt->spectre.rects[i].height = height;
+			if (appwdgt->spectre.rects[i].height > height)
+				appwdgt->spectre.rects[i].height = height;
 
-	    appwdgt->spectre.rects[i].height *= (-1);
+			appwdgt->spectre.rects[i].height *= (-1);
+		}
+		gtk_widget_queue_draw(appwdgt->spectre.visuSpectre);
 	}
-	gtk_widget_queue_draw(appwdgt->spectre.visuSpectre);
-    }
+	FMOD_BOOL mute;
+	FMOD_ChannelGroup_GetMute(appwdgt->mus.master, &mute);
+	FMOD_Channel_SetMute(appwdgt->mus.channel, mute);
+
+
+	if (appwdgt->mus.height != NULL)
+		FMOD_Channel_AddDSP(appwdgt->mus.channel, FMOD_CHANNELCONTROL_DSP_TAIL, appwdgt->mus.height);
+
 }
 void clean_spectre(Ui *appwdgt)
 {
