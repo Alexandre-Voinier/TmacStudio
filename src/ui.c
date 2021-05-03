@@ -176,6 +176,5 @@ void init_musStruct(Ui *appwdgt)
 	appwdgt->spectre.created = 0;
 	appwdgt->mus.coeff = 1;	
 	appwdgt->spectre.hasheight = 0;
-	appwdgt->spectre.isgetting = 0;
 }
 

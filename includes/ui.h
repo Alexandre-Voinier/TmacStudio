@@ -32,7 +32,6 @@ typedef struct Spectre
     int created;
     guint timeout;
     int hasheight;
-    int isgetting;
 }Spectre;
 
 typedef struct MusStruct
@@ -133,5 +132,4 @@ void get_spectre(Ui *appwdgt);
 
 void clean_spectre(Ui *appwdgt);
 
-void set_height(Ui *appwdgt);
 #endif
