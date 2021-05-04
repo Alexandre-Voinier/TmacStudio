@@ -10,6 +10,8 @@ void on_new_btn_activated(GtkMenuItem *btn, Ui *appwdgt)
 {
 	if (appwdgt->mus.musique != NULL)
 	{
+		appwdgt->mus.isloop = 0;
+		clean_spectre(appwdgt);
 		FMOD_Sound_Release(appwdgt->mus.musique);
 		FMOD_System_Close(appwdgt->mus.system);
     		FMOD_System_Release(appwdgt->mus.system);
