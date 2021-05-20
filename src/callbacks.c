@@ -137,6 +137,44 @@ void on_draw_spectrum(GtkWidget *drawarea, cairo_t *cr, Ui *appwdgt)
     }
 }
 
+void on_draw_wave(GtkWidget *drawarea, cairo_t *cr, Ui *appwdgt)
+{
+	cairo_set_source_rgb(cr, 1, 1, 1);
+    	cairo_paint(cr);
+	
+	int width = gtk_widget_get_allocated_width(appwdgt->wave.window);
+        int height = (gtk_widget_get_allocated_height(appwdgt->wave.window))/2;
+	float heightscale = (float)height * 0.75f;
+	float *wave = malloc(width*sizeof(float));
+	int r;
+	FMOD_RESULT result;
+	result = FMOD_Sound_ReadData(appwdgt->mus.musique, wave, width, &r);
+	if (result != FMOD_OK)
+		g_print("couldn't load the music data with readdata\n");
+	for (int i = 0; i<width; i++)
+	{
+		if (i<r && wave[i] < 0)
+			wave[i] = -(wave[i]);
+		else
+		{
+			if (i>=r)
+				wave[i] = 0;
+		}
+	}
+
+	cairo_set_source_rgb(cr, 0, 0, 0);
+
+	for (int x = 0; x<width; x++)
+	{
+		for (int y = 0; y < wave[x]*heightscale; y++)
+		{
+			cairo_move_to(cr, x, y);
+			cairo_close_path(cr);
+		}
+	}
+	cairo_stroke(cr);
+}
+
 //============================= End Function =================================//
 void on_window_destroy()
 {

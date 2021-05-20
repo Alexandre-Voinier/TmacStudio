@@ -13,6 +13,7 @@ void on_save_btn_activated(GtkMenuItem *btn, Ui *appwdgt);
 void on_rec_btn_clicked(GtkButton *btn, Ui *appwdgt);
 void on_stop_btn_clicked(GtkButton *btn, Ui *appwdgt);
 void on_draw_spectrum(GtkWidget *drawarea, cairo_t *cr, Ui *appwdgt);
+void on_draw_wave(GtkWidget *drawarea, cairo_t *cr, Ui *appwdgt);
 
 //================================ End Function ==============================//
 

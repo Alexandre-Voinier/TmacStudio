@@ -34,6 +34,11 @@ typedef struct Spectre
     int hasheight;
 }Spectre;
 
+typedef struct Wave
+{
+	GtkWidget *window;
+}Wave;
+
 typedef struct MusStruct
 {
         FMOD_SYSTEM *system;
@@ -73,6 +78,7 @@ typedef struct Ui
     SplashStruct splash;
     EditScreen edit;
     Spectre spectre;
+    Wave wave;
 
     MusStruct mus;
 }Ui;

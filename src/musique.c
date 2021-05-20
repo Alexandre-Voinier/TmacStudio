@@ -68,12 +68,12 @@ void Load(Ui *appwdgt, char* musique)
 	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.pause_btn), TRUE);
 	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.rec_btn), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.stop_btn), FALSE);
+	//gtk_widget_queue_draw(appwdgt->wave.window);
     }
 }
 
 void Play(Ui *appwdgt)
 {
-
 	if (appwdgt->mus.musique != NULL)
 	{
 	    if (appwdgt->mus.is_paused)
@@ -302,6 +302,7 @@ void RecordStop(Ui *appwdgt)
                 gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.stop_btn), FALSE);
 
 		FMOD_System_RecordStop(appwdgt->mus.system,0);
+		//gtk_widget_queue_draw(appwdgt->wave.window);
 
     		g_print("%d", appwdgt->mus.musique == NULL);
 	}
@@ -391,9 +392,10 @@ void Attach(Ui *appwdgt)
 	gtk_scale_set_draw_value(GTK_SCALE(slider), FALSE);
 	g_signal_connect(slider, "value_changed", G_CALLBACK(Volume), appwdgt);
 
-	GtkWidget *draw = gtk_drawing_area_new();
+	appwdgt->wave.window = gtk_drawing_area_new();
+	g_signal_connect(appwdgt->wave.window, "draw", G_CALLBACK(on_draw_wave), appwdgt);
 	
-	gtk_box_pack_start(GTK_BOX(new1), draw, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(new1), appwdgt->wave.window, TRUE, TRUE, 0);
 	gtk_box_pack_start(GTK_BOX(new1), slider, TRUE, TRUE, 0);	
 		
 	//On s'occupe du shell et du spectre
@@ -607,5 +609,4 @@ void clean_spectre(Ui *appwdgt)
 	appwdgt->spectre.hasheight = 0;
     }
 }
-
 
