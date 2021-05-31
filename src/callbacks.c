@@ -161,7 +161,7 @@ void on_draw_wave(GtkWidget *drawarea, cairo_t *cr, Ui *appwdgt)
         int r;
 	FMOD_Sound_SeekData(appwdgt->mus.musique, 0);
         result = FMOD_Sound_ReadData(appwdgt->mus.musique, wave, sound_length_pcm_bytes, &r);
-		
+
 	printf("%i de bytes lu sur %i\n", r, sound_length_pcm_bytes);
 	if (result!=FMOD_OK)
 		g_print("problème sur le readdata\n");
