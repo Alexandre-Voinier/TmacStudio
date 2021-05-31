@@ -3,7 +3,7 @@
 #include "../includes/callbacks.h"
 #include <stdio.h>
 
-void Load(Ui *appwdgt, char* musique)
+void Load(Ui *appwdgt, char* musique, int s)
 {
     FMOD_RESULT result;
     FMOD_SOUND *musi;
@@ -14,7 +14,8 @@ void Load(Ui *appwdgt, char* musique)
 	FMOD_Sound_Release(appwdgt->mus.musique);
 	appwdgt->mus.soundlength = 0;
 	appwdgt->mus.datalength = 0;
-	appwdgt->mus.fd = NULL;
+	if (!s)
+		appwdgt->mus.fd = NULL;
 	appwdgt->mus.save = 0;
 	appwdgt->mus.isloop = 0;
 	appwdgt->mus.coeff = 1;
@@ -66,8 +67,10 @@ void Load(Ui *appwdgt, char* musique)
 	appwdgt->mus.is_paused = 0;
 	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.play_btn), TRUE);
 	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.pause_btn), TRUE);
-	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.rec_btn), FALSE);
+	if (!s)
+		gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.rec_btn), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.stop_btn), FALSE);
+	gtk_widget_queue_draw(appwdgt->edit.drawW);
     }
 }
 
@@ -302,6 +305,7 @@ void RecordStop(Ui *appwdgt)
                 gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.stop_btn), FALSE);
 
 		FMOD_System_RecordStop(appwdgt->mus.system,0);
+		Load(appwdgt, ".record.wav", 1);
 
     		g_print("%d", appwdgt->mus.musique == NULL);
 	}
@@ -391,9 +395,10 @@ void Attach(Ui *appwdgt)
 	gtk_scale_set_draw_value(GTK_SCALE(slider), FALSE);
 	g_signal_connect(slider, "value_changed", G_CALLBACK(Volume), appwdgt);
 
-	GtkWidget *draw = gtk_drawing_area_new();
+	appwdgt->edit.drawW = gtk_drawing_area_new();
+	g_signal_connect(appwdgt->edit.drawW, "draw", G_CALLBACK(on_draw_wave), appwdgt);
 	
-	gtk_box_pack_start(GTK_BOX(new1), draw, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(new1), appwdgt->edit.drawW, TRUE, TRUE, 0);
 	gtk_box_pack_start(GTK_BOX(new1), slider, TRUE, TRUE, 0);	
 		
 	//On s'occupe du shell et du spectre

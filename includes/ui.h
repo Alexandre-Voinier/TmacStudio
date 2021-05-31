@@ -23,6 +23,7 @@ typedef struct EditScreen
     GtkBox *grilleG;
     GtkBox *grille;
     GtkWidget *TextS;
+    GtkWidget *drawW;
 }EditScreen;
 
 typedef struct Spectre
@@ -102,7 +103,7 @@ void on_window_destroy();
 // musique.h
 //Fonctions
 
-void Load(Ui *appwdgt, char* musique);
+void Load(Ui *appwdgt, char* musique, int s);
 
 void Play(Ui *appwdgt);
 
