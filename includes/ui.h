@@ -23,8 +23,6 @@ typedef struct EditScreen
     GtkBox *grilleG;
     GtkBox *grille;
     GtkWidget *TextS;
-    GtkWidget *drawW;
-    int mustdraw;
 }EditScreen;
 
 typedef struct Spectre
@@ -35,6 +33,14 @@ typedef struct Spectre
     guint timeout;
     int hasheight;
 }Spectre;
+
+typedef struct Wave
+{
+	GtkWidget *drawW;
+	char *tab;
+	int sound_length_pcm_bytes;
+	int r;
+}Wave;
 
 typedef struct MusStruct
 {
@@ -75,6 +81,7 @@ typedef struct Ui
     SplashStruct splash;
     EditScreen edit;
     Spectre spectre;
+    Wave wave;
 
     MusStruct mus;
 }Ui;
@@ -133,5 +140,7 @@ void WriteWavHeader(FILE *fp, Ui *appwdgt, int length);
 void get_spectre(Ui *appwdgt);
 
 void clean_spectre(Ui *appwdgt);
+
+void read_data(Ui *appwdgt);
 
 #endif
