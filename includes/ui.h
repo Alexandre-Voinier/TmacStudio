@@ -39,6 +39,9 @@ typedef struct Wave
 	GtkWidget *drawW;
 	char *tab;
 	int sound_length_pcm_bytes;
+	int sound_length_s;
+	float perc;
+	guint cursor;
 	int r;
 }Wave;
 

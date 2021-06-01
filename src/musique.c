@@ -70,6 +70,7 @@ void Load(Ui *appwdgt, char* musique, int s)
 	if (!s)
 		gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.rec_btn), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.stop_btn), FALSE);
+	appwdgt->wave.perc = 0;
 	read_data(appwdgt);
 	gtk_widget_queue_draw(appwdgt->wave.drawW);
     }
@@ -399,9 +400,12 @@ void Attach(Ui *appwdgt)
 	appwdgt->wave.drawW = gtk_drawing_area_new();
 	appwdgt->wave.tab = NULL;
 	appwdgt->wave.sound_length_pcm_bytes = 0;
+	appwdgt->wave.sound_length_s = 0;
+	appwdgt->wave.perc = 0;
 	appwdgt->wave.r = 0;
 	g_signal_connect(appwdgt->wave.drawW, "draw", G_CALLBACK(on_draw_wave), appwdgt);
-	
+	appwdgt->wave.cursor = g_timeout_add_seconds(1, G_SOURCE_FUNC(on_draw_cursor), appwdgt);
+
 	gtk_box_pack_start(GTK_BOX(new1), appwdgt->wave.drawW, TRUE, TRUE, 0);
 	gtk_box_pack_start(GTK_BOX(new1), slider, TRUE, TRUE, 0);	
 		
@@ -621,10 +625,13 @@ void read_data(Ui *appwdgt)
 {
 	FMOD_RESULT result;
 	result = FMOD_Sound_GetLength(appwdgt->mus.musique, &appwdgt->wave.sound_length_pcm_bytes, FMOD_TIMEUNIT_PCMBYTES);
+	result = FMOD_Sound_GetLength(appwdgt->mus.musique, &appwdgt->wave.sound_length_s, FMOD_TIMEUNIT_MS);
 	if (result != FMOD_OK)
 		g_print("problème sur Getlength\n");
 
-	appwdgt->wave.tab = malloc(appwdgt->wave.sound_length_pcm_bytes);
+	appwdgt->wave.sound_length_s = appwdgt->wave.sound_length_s*0.001f;
+
+	appwdgt->wave.tab = malloc(appwdgt->wave.sound_length_pcm_bytes*sizeof(char));
 	if (appwdgt->wave.tab == NULL)
 		g_print("ça a pas marché le malloc\n");
 
@@ -647,3 +654,4 @@ void read_data(Ui *appwdgt)
                         appwdgt->wave.tab[i] = 0;
         }
 }
+

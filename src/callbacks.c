@@ -10,6 +10,7 @@ void on_new_btn_activated(GtkMenuItem *btn, Ui *appwdgt)
 {
 	if (appwdgt->mus.musique != NULL)
 	{
+		g_source_remove(appwdgt->wave.cursor);
 		appwdgt->mus.isloop = 0;
 		clean_spectre(appwdgt);
 		FMOD_Sound_Release(appwdgt->mus.musique);
@@ -167,6 +168,36 @@ void on_draw_wave(GtkWidget *drawarea, cairo_t *cr, Ui *appwdgt)
 			cairo_rectangle(cr, x, height, 1, 1);
         }
 	cairo_fill(cr);
+}
+
+void on_draw_cursor(GtkWidget *drawarea, cairo_t *cr, Ui *appwdgt)
+{
+		g_print("on passe ici\n");
+		cairo_set_source_rgb(cr, 1, 0, 0);
+        	int width = gtk_widget_get_allocated_width(appwdgt->wave.drawW);
+        	int height = (gtk_widget_get_allocated_height(appwdgt->wave.drawW));
+	
+		int pas = width/appwdgt->wave.sound_length_s;	
+
+		int level = width*appwdgt->wave.perc;
+
+		unsigned int ip;
+        	FMOD_Channel_IsPlaying(appwdgt->mus.channel, &ip);
+
+		if (ip)
+			level += pas;
+
+		if (level > width)
+		{
+			appwdgt->wave.perc = 0;
+			gtk_widget_queue_draw(appwdgt->wave.drawW);
+		}
+		else
+		{
+			cairo_rectangle(cr, 0, 0, level, height-1);
+			cairo_fill(cr);
+		}
+		appwdgt->wave.perc = level/width;
 }
 
 //============================= End Function =================================//
