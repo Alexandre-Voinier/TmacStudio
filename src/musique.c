@@ -70,6 +70,7 @@ void Load(Ui *appwdgt, char* musique, int s)
 	if (!s)
 		gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.rec_btn), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.stop_btn), FALSE);
+	appwdgt->edit.mustdraw = 1;
 	gtk_widget_queue_draw(appwdgt->edit.drawW);
     }
 }
@@ -396,6 +397,7 @@ void Attach(Ui *appwdgt)
 	g_signal_connect(slider, "value_changed", G_CALLBACK(Volume), appwdgt);
 
 	appwdgt->edit.drawW = gtk_drawing_area_new();
+	appwdgt->edit.mustdraw = 0;
 	g_signal_connect(appwdgt->edit.drawW, "draw", G_CALLBACK(on_draw_wave), appwdgt);
 	
 	gtk_box_pack_start(GTK_BOX(new1), appwdgt->edit.drawW, TRUE, TRUE, 0);

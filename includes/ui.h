@@ -24,6 +24,7 @@ typedef struct EditScreen
     GtkBox *grille;
     GtkWidget *TextS;
     GtkWidget *drawW;
+    int mustdraw;
 }EditScreen;
 
 typedef struct Spectre
