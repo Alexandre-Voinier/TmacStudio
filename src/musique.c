@@ -73,6 +73,7 @@ void Load(Ui *appwdgt, char* musique, int s)
 	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.stop_btn), FALSE);
 	appwdgt->wave.timer = 0;
 	read_data(appwdgt);
+	gtk_widget_queue_draw(appwdgt->wave.drawW);
     }
 }
 
@@ -310,8 +311,8 @@ void RecordStop(Ui *appwdgt)
                 gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.stop_btn), FALSE);
 
 		FMOD_System_RecordStop(appwdgt->mus.system,0);
-		Load(appwdgt, ".record.wav", 1);
 		appwdgt->wave.record = 0;
+		Load(appwdgt, ".record.wav", 1);
 
     		g_print("%d", appwdgt->mus.musique == NULL);
 	}
@@ -397,16 +398,13 @@ void draw(Ui *appwdgt)
 	g_source_remove(appwdgt->wave.cursor);
 	unsigned int ip;
         FMOD_Channel_IsPlaying(appwdgt->mus.channel, &ip);
-	g_print("on passe par laaaa\n");
 	if (ip)
 	{
 	    appwdgt->wave.cursor = g_timeout_add_seconds(1, G_SOURCE_FUNC(draw), appwdgt);
 	    if (!appwdgt->mus.is_paused)
 	    {
 		appwdgt->wave.timer += 1;
-		printf("2 : %i\n", appwdgt->wave.timer);
 		gtk_widget_queue_draw(appwdgt->wave.drawW);
-        	g_print("on est la\n");
 	    }
 	}
 }
@@ -660,7 +658,7 @@ void read_data(Ui *appwdgt)
 
 	FMOD_Sound_SeekData(appwdgt->mus.musique, 0);
 	result = FMOD_Sound_ReadData(appwdgt->mus.musique, appwdgt->wave.tab, appwdgt->wave.sound_length_pcm_bytes, &appwdgt->wave.r);
-	printf("%i de bytes lu sur %i\n", appwdgt->wave.r, appwdgt->wave.sound_length_pcm_bytes);
+	
         if (result!=FMOD_OK)
                 g_print("problème sur le readdata\n");
 	
