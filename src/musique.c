@@ -394,8 +394,10 @@ void on_entry_activated(GtkWidget *entry, Ui *appwdgt)
 
 void draw(Ui *appwdgt)
 {
+	g_source_remove(appwdgt->wave.cursor);
 	unsigned int ip;
         FMOD_Channel_IsPlaying(appwdgt->mus.channel, &ip);
+	appwdgt->wave.cursor = g_timeout_add_seconds(1, G_SOURCE_FUNC(draw), appwdgt);
 	g_print("on passe par laaaa\n");
 	if (ip)
 	{
