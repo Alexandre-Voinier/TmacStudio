@@ -171,6 +171,7 @@ void on_draw_wave(GtkWidget *drawarea, cairo_t *cr, Ui *appwdgt)
 
 	if (!appwdgt->wave.record)
 	{
+		printf("la musique est de %i\n", appwdgt->wave.sound_length_s);
 		cairo_set_source_rgb(cr, 1, 0, 0);
 
 	        unsigned int ip;
@@ -182,14 +183,9 @@ void on_draw_wave(GtkWidget *drawarea, cairo_t *cr, Ui *appwdgt)
 			 appwdgt->wave.change = 0;
 		}
 
-     		if (appwdgt->wave.timer == appwdgt->wave.sound_length_s)
-            		appwdgt->wave.timer = 0;
-        	else
-        	{
-			int level = (appwdgt->wave.timer/appwdgt->wave.sound_length_s)*width;
-			cairo_rectangle(cr, 0, 0, level, (height-1)*2);
-              		cairo_fill(cr);
-     		}
+		int level = ((appwdgt->wave.timer%appwdgt->wave.sound_length_s)/appwdgt->wave.sound_length_s)*width;
+		cairo_rectangle(cr, 0, 0, level, (height-1)*2);
+              	cairo_fill(cr);
 		printf("%i\n", appwdgt->wave.timer);
 	}
 }

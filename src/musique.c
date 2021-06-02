@@ -73,7 +73,7 @@ void Load(Ui *appwdgt, char* musique, int s)
 	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.stop_btn), FALSE);
 	appwdgt->wave.timer = 0;
 	read_data(appwdgt);
-	appwdgt->wave.cursor = g_timeout_add_seconds(1, G_SOURCE_FUNC(draw), appwdgt);
+	appwdgt->wave.cursor = g_timeout_add(500, G_SOURCE_FUNC(draw), appwdgt);
     }
 }
 
