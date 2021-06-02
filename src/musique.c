@@ -399,7 +399,7 @@ void draw(Ui *appwdgt)
         FMOD_Channel_IsPlaying(appwdgt->mus.channel, &ip);
 	appwdgt->wave.cursor = g_timeout_add_seconds(1, G_SOURCE_FUNC(draw), appwdgt);
 	g_print("on passe par laaaa\n");
-	if (ip)
+	if (ip && appwdgt->mus.is_paused)
 	{
 		appwdgt->wave.timer += 1;
 		printf("2 : %i\n", appwdgt->wave.timer);

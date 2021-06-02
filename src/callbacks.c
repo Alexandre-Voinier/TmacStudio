@@ -176,7 +176,7 @@ void on_draw_wave(GtkWidget *drawarea, cairo_t *cr, Ui *appwdgt)
 
 		int level = ((float)(appwdgt->wave.timer%appwdgt->wave.sound_length_s)/appwdgt->wave.sound_length_s)*width;
 		printf("%i\n", level);
-		cairo_rectangle(cr, 0, 0, level, (height-1)*2);
+		cairo_rectangle(cr, level, 0, 2, (height-1)*2);
               	cairo_fill(cr);
 		printf("%i\n", appwdgt->wave.timer);
 	}
