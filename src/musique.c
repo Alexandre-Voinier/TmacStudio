@@ -73,7 +73,6 @@ void Load(Ui *appwdgt, char* musique, int s)
 	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.stop_btn), FALSE);
 	appwdgt->wave.timer = 0;
 	read_data(appwdgt);
-	appwdgt->wave.cursor = g_timeout_add_seconds(1, G_SOURCE_FUNC(draw), appwdgt);
     }
 }
 
@@ -131,6 +130,7 @@ void Play(Ui *appwdgt)
 	    FMOD_ChannelGroup_GetMute(appwdgt->mus.master, &mute);
 	    FMOD_Channel_SetMute(appwdgt->mus.channel, mute);
 	    Height(appwdgt, appwdgt->mus.coeff);
+	    appwdgt->wave.cursor = g_timeout_add_seconds(1, G_SOURCE_FUNC(draw), appwdgt);
 	}
 }
 
@@ -397,14 +397,17 @@ void draw(Ui *appwdgt)
 	g_source_remove(appwdgt->wave.cursor);
 	unsigned int ip;
         FMOD_Channel_IsPlaying(appwdgt->mus.channel, &ip);
-	appwdgt->wave.cursor = g_timeout_add_seconds(1, G_SOURCE_FUNC(draw), appwdgt);
 	g_print("on passe par laaaa\n");
-	if (ip && !appwdgt->mus.is_paused)
+	if (ip)
 	{
+	    appwdgt->wave.cursor = g_timeout_add_seconds(1, G_SOURCE_FUNC(draw), appwdgt);
+	    if (!appwdgt->mus.is_paused)
+	    {
 		appwdgt->wave.timer += 1;
 		printf("2 : %i\n", appwdgt->wave.timer);
 		gtk_widget_queue_draw(appwdgt->wave.drawW);
         	g_print("on est la\n");
+	    }
 	}
 }
 
