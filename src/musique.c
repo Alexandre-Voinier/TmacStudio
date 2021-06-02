@@ -11,6 +11,7 @@ void Load(Ui *appwdgt, char* musique, int s)
     int first = 0;
     if (appwdgt->mus.musique != NULL)
     {
+	g_source_remove(appwdgt->wave.cursor);
 	FMOD_Sound_Release(appwdgt->mus.musique);
 	appwdgt->mus.soundlength = 0;
 	appwdgt->mus.datalength = 0;
@@ -72,7 +73,7 @@ void Load(Ui *appwdgt, char* musique, int s)
 	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.stop_btn), FALSE);
 	appwdgt->wave.perc = 0;
 	read_data(appwdgt);
-	gtk_widget_queue_draw(appwdgt->wave.drawW);
+	appwdgt->wave.cursor = g_timeout_add_seconds(1, G_SOURCE_FUNC(draw), appwdgt);
     }
 }
 
@@ -192,6 +193,7 @@ void RecordStart(Ui *appwdgt)
 	
 	if (appwdgt->mus.is_recording == 0)
 	{
+		appwdgt->wave.record = 1;
         	if (appwdgt->mus.musique != NULL)
         	{
                 	FMOD_Sound_Release(appwdgt->mus.musique);
@@ -308,6 +310,7 @@ void RecordStop(Ui *appwdgt)
 
 		FMOD_System_RecordStop(appwdgt->mus.system,0);
 		Load(appwdgt, ".record.wav", 1);
+		appwdgt->wave.record = 0;
 
     		g_print("%d", appwdgt->mus.musique == NULL);
 	}
@@ -388,6 +391,12 @@ void on_entry_activated(GtkWidget *entry, Ui *appwdgt)
        appwdgt->mus.save = g_timeout_add_seconds(3, G_SOURCE_FUNC(Message), appwdgt);	
 }
 
+void draw(Ui *appwdgt)
+{
+	gtk_widget_queue_draw(appwdgt->wave.drawW);
+	g_print("on est la\n");
+}
+
 void Attach(Ui *appwdgt)
 {
 	//On s'occupe de la zone du slider
@@ -404,7 +413,6 @@ void Attach(Ui *appwdgt)
 	appwdgt->wave.perc = 0;
 	appwdgt->wave.r = 0;
 	g_signal_connect(appwdgt->wave.drawW, "draw", G_CALLBACK(on_draw_wave), appwdgt);
-	appwdgt->wave.cursor = g_timeout_add_seconds(1, G_SOURCE_FUNC(on_draw_cursor), appwdgt);
 
 	gtk_box_pack_start(GTK_BOX(new1), appwdgt->wave.drawW, TRUE, TRUE, 0);
 	gtk_box_pack_start(GTK_BOX(new1), slider, TRUE, TRUE, 0);	

@@ -168,36 +168,35 @@ void on_draw_wave(GtkWidget *drawarea, cairo_t *cr, Ui *appwdgt)
 			cairo_rectangle(cr, x, height, 1, 1);
         }
 	cairo_fill(cr);
-}
 
-void on_draw_cursor(GtkWidget *drawarea, cairo_t *cr, Ui *appwdgt)
-{
-		g_print("on passe ici\n");
+	if (!appwdgt->wave.record)
+	{
 		cairo_set_source_rgb(cr, 1, 0, 0);
-        	int width = gtk_widget_get_allocated_width(appwdgt->wave.drawW);
-        	int height = (gtk_widget_get_allocated_height(appwdgt->wave.drawW));
 	
-		int pas = width/appwdgt->wave.sound_length_s;	
+		int pas2 = width/appwdgt->wave.sound_length_s;
 
-		int level = width*appwdgt->wave.perc;
+        	int level = width*appwdgt->wave.perc;
 
-		unsigned int ip;
+	        unsigned int ip;
         	FMOD_Channel_IsPlaying(appwdgt->mus.channel, &ip);
 
-		if (ip)
-			level += pas;
+      		if (ip)
+ 	        	 level += pas2;
 
-		if (level > width)
-		{
-			appwdgt->wave.perc = 0;
-			gtk_widget_queue_draw(appwdgt->wave.drawW);
-		}
-		else
-		{
-			cairo_rectangle(cr, 0, 0, level, height-1);
-			cairo_fill(cr);
-		}
-		appwdgt->wave.perc = level/width;
+		printf("the level is %i for a window of %i\n", level, width);
+     		if (level >= width)
+            		appwdgt->wave.perc = 0;
+        	else
+        	{
+			if (level != 0)
+			{
+            			cairo_rectangle(cr, 0, 0, level, (height-1)*2);
+              			cairo_fill(cr);
+			}
+     		}
+    		appwdgt->wave.perc = level/width;
+		printf("%f\n", appwdgt->wave.perc);
+	}
 }
 
 //============================= End Function =================================//

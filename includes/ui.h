@@ -43,6 +43,7 @@ typedef struct Wave
 	float perc;
 	guint cursor;
 	int r;
+	int record;
 }Wave;
 
 typedef struct MusStruct
@@ -127,6 +128,8 @@ void RecordStart(Ui *appwdgt);
 void RecordStop(Ui *appwdgt);
 
 void on_entry_activated(GtkWidget *entry, Ui *appwdgt);
+
+void draw(Ui *appwdgt);
 
 void Attach(Ui *appwdgt);
 
