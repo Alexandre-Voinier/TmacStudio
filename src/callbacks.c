@@ -172,30 +172,25 @@ void on_draw_wave(GtkWidget *drawarea, cairo_t *cr, Ui *appwdgt)
 	if (!appwdgt->wave.record)
 	{
 		cairo_set_source_rgb(cr, 1, 0, 0);
-	
-		int pas2 = width/appwdgt->wave.sound_length_s;
-
-        	int level = width*appwdgt->wave.perc;
 
 	        unsigned int ip;
         	FMOD_Channel_IsPlaying(appwdgt->mus.channel, &ip);
 
-      		if (ip)
- 	        	 level += pas2;
+      		if (ip && appwdgt->wave.change)
+		{
+ 	        	 appwdgt->wave.timer += 1;
+			 appwdgt->wave.change = 0;
+		}
 
-		printf("the level is %i for a window of %i\n", level, width);
-     		if (level >= width)
-            		appwdgt->wave.perc = 0;
+     		if (appwdgt->wave.timer == appwdgt->wave.sound_length_s)
+            		appwdgt->wave.timer = 0;
         	else
         	{
-			if (level != 0)
-			{
-            			cairo_rectangle(cr, 0, 0, level, (height-1)*2);
-              			cairo_fill(cr);
-			}
+			int level = (appwdgt->wave.timer/appwdgt->wave.sound_length_s)*width;
+			cairo_rectangle(cr, 0, 0, level, (height-1)*2);
+              		cairo_fill(cr);
      		}
-    		appwdgt->wave.perc = level/width;
-		printf("%f\n", appwdgt->wave.perc);
+		printf("%i\n", appwdgt->wave.timer);
 	}
 }
 
