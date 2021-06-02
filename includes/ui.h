@@ -41,7 +41,6 @@ typedef struct Wave
 	int sound_length_pcm_bytes;
 	int sound_length_s;
 	int timer;
-	int change;
 	guint cursor;
 	int r;
 	int record;

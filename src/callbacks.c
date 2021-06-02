@@ -171,19 +171,11 @@ void on_draw_wave(GtkWidget *drawarea, cairo_t *cr, Ui *appwdgt)
 
 	if (!appwdgt->wave.record)
 	{
-		printf("la musique est de %i\n", appwdgt->wave.sound_length_s);
+		//printf("la musique est de %i\n", appwdgt->wave.sound_length_s);
 		cairo_set_source_rgb(cr, 1, 0, 0);
 
-	        unsigned int ip;
-        	FMOD_Channel_IsPlaying(appwdgt->mus.channel, &ip);
-
-      		if (ip && appwdgt->wave.change)
-		{
- 	        	 appwdgt->wave.timer += 1;
-			 appwdgt->wave.change = 0;
-		}
-
-		int level = ((appwdgt->wave.timer%appwdgt->wave.sound_length_s)/appwdgt->wave.sound_length_s)*width;
+		int level = ((float)(appwdgt->wave.timer%appwdgt->wave.sound_length_s)/appwdgt->wave.sound_length_s)*width;
+		printf("%i\n", level);
 		cairo_rectangle(cr, 0, 0, level, (height-1)*2);
               	cairo_fill(cr);
 		printf("%i\n", appwdgt->wave.timer);

@@ -73,7 +73,7 @@ void Load(Ui *appwdgt, char* musique, int s)
 	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.stop_btn), FALSE);
 	appwdgt->wave.timer = 0;
 	read_data(appwdgt);
-	appwdgt->wave.cursor = g_timeout_add(500, G_SOURCE_FUNC(draw), appwdgt);
+	appwdgt->wave.cursor = g_timeout_add_seconds(1, G_SOURCE_FUNC(draw), appwdgt);
     }
 }
 
@@ -394,9 +394,16 @@ void on_entry_activated(GtkWidget *entry, Ui *appwdgt)
 
 void draw(Ui *appwdgt)
 {
-	appwdgt->wave.change = 1;
-	gtk_widget_queue_draw(appwdgt->wave.drawW);
-	g_print("on est la\n");
+	unsigned int ip;
+        FMOD_Channel_IsPlaying(appwdgt->mus.channel, &ip);
+	g_print("on passe par laaaa\n");
+	if (ip)
+	{
+		appwdgt->wave.timer += 1;
+		printf("2 : %i\n", appwdgt->wave.timer);
+		gtk_widget_queue_draw(appwdgt->wave.drawW);
+        	g_print("on est la\n");
+	}
 }
 
 void Attach(Ui *appwdgt)
@@ -413,6 +420,7 @@ void Attach(Ui *appwdgt)
 	appwdgt->wave.sound_length_pcm_bytes = 0;
 	appwdgt->wave.sound_length_s = 0;
 	appwdgt->wave.record = 0;
+	appwdgt->wave.timer = 0;
 	appwdgt->wave.r = 0;
 	g_signal_connect(appwdgt->wave.drawW, "draw", G_CALLBACK(on_draw_wave), appwdgt);
 
