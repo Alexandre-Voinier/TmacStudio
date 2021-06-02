@@ -3,7 +3,7 @@
 #include "../includes/callbacks.h"
 #include <stdio.h>
 
-void Load(Ui *appwdgt, char* musique)
+void Load(Ui *appwdgt, char* musique, int s)
 {
     FMOD_RESULT result;
     FMOD_SOUND *musi;
@@ -11,11 +11,15 @@ void Load(Ui *appwdgt, char* musique)
     int first = 0;
     if (appwdgt->mus.musique != NULL)
     {
+	g_source_remove(appwdgt->wave.cursor);
 	FMOD_Sound_Release(appwdgt->mus.musique);
 	appwdgt->mus.soundlength = 0;
 	appwdgt->mus.datalength = 0;
-	appwdgt->mus.fd = NULL;
+	if (!s)
+		appwdgt->mus.fd = NULL;
 	appwdgt->mus.save = 0;
+	appwdgt->mus.isloop = 0;
+	appwdgt->mus.coeff = 1;
 
 	if (appwdgt->mus.is_paused)
 	{
@@ -34,8 +38,20 @@ void Load(Ui *appwdgt, char* musique)
 	    FMOD_Channel_RemoveDSP(appwdgt->mus.channel, appwdgt->mus.dspFFT);
 	    FMOD_DSP_Release(appwdgt->mus.dspFFT);
 	    appwdgt->spectre.created = 0;
-	}
 
+	    if (appwdgt->spectre.hasheight)
+            {
+                 FMOD_Channel_RemoveDSP(appwdgt->mus.channel, appwdgt->mus.height);
+                 appwdgt->mus.height = NULL;
+            }
+
+	}
+	if (appwdgt->spectre.hasheight)
+        {
+             FMOD_ChannelGroup_RemoveDSP(appwdgt->mus.master, appwdgt->mus.height);
+             FMOD_DSP_Release(appwdgt->mus.height);
+             appwdgt->spectre.hasheight = 0;
+        }
     }
     else
 	first = 1;
@@ -52,8 +68,12 @@ void Load(Ui *appwdgt, char* musique)
 	appwdgt->mus.is_paused = 0;
 	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.play_btn), TRUE);
 	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.pause_btn), TRUE);
-	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.rec_btn), FALSE);
+	if (!s)
+		gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.rec_btn), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.stop_btn), FALSE);
+	appwdgt->wave.timer = 0;
+	read_data(appwdgt);
+	gtk_widget_queue_draw(appwdgt->wave.drawW);
     }
 }
 
@@ -67,7 +87,8 @@ void Play(Ui *appwdgt)
 		FMOD_ChannelGroup_SetPaused(appwdgt->mus.master, 0);
 		FMOD_Channel_SetPaused(appwdgt->mus.channel, 0);
 		appwdgt->mus.is_paused = 0;
-	    }	
+	    }
+
 	    if (appwdgt->spectre.created)
 	    {
 		g_source_remove(appwdgt->spectre.timeout);
@@ -78,16 +99,21 @@ void Play(Ui *appwdgt)
 
 		if (appwdgt->spectre.hasheight)
 		{
-		    FMOD_ChannelGroup_RemoveDSP(appwdgt->mus.master, appwdgt->mus.height);
 		    FMOD_Channel_RemoveDSP(appwdgt->mus.channel, appwdgt->mus.height);
-		    FMOD_DSP_Release(appwdgt->mus.height);
 		    appwdgt->mus.height = NULL;
 		}
-		appwdgt->spectre.hasheight = 0;
+	    }
+
+	    if (appwdgt->spectre.hasheight)
+	    {
+		    FMOD_ChannelGroup_RemoveDSP(appwdgt->mus.master, appwdgt->mus.height);
+		    FMOD_DSP_Release(appwdgt->mus.height);
+		    appwdgt->spectre.hasheight = 0;
 	    }
 
 	    gtk_widget_queue_draw(appwdgt->spectre.visuSpectre);
-	    
+		
+	    appwdgt->wave.timer = 0;
 	    FMOD_System_PlaySound(appwdgt->mus.system, appwdgt->mus.musique, appwdgt->mus.master, 0,
 		    &(appwdgt->mus.channel));
 	    float volume;
@@ -99,12 +125,13 @@ void Play(Ui *appwdgt)
 		FMOD_System_CreateDSPByType(appwdgt->mus.system, FMOD_DSP_TYPE_FFT, &(appwdgt->mus.dspFFT));
 		FMOD_Channel_AddDSP(appwdgt->mus.channel, FMOD_CHANNELCONTROL_DSP_HEAD, appwdgt->mus.dspFFT);
 		FMOD_DSP_SetParameterInt(appwdgt->mus.dspFFT, FMOD_DSP_FFT_WINDOWSIZE, 1024);
-		appwdgt->spectre.timeout = g_timeout_add(100, G_SOURCE_FUNC(get_spectre), appwdgt);
+		appwdgt->spectre.timeout = g_timeout_add(200, G_SOURCE_FUNC(get_spectre), appwdgt);
 	    }
 	    FMOD_BOOL mute;
 	    FMOD_ChannelGroup_GetMute(appwdgt->mus.master, &mute);
 	    FMOD_Channel_SetMute(appwdgt->mus.channel, mute);
 	    Height(appwdgt, appwdgt->mus.coeff);
+	    appwdgt->wave.cursor = g_timeout_add_seconds(1, G_SOURCE_FUNC(draw), appwdgt);
 	}
 }
 
@@ -168,7 +195,6 @@ void RecordStart(Ui *appwdgt)
 	
 	if (appwdgt->mus.is_recording == 0)
 	{
-
         	if (appwdgt->mus.musique != NULL)
         	{
                 	FMOD_Sound_Release(appwdgt->mus.musique);
@@ -177,12 +203,36 @@ void RecordStart(Ui *appwdgt)
 			appwdgt->mus.datalength = 0;
 			appwdgt->mus.fd = NULL;
 			appwdgt->mus.save = 0;
+			appwdgt->mus.isloop = 0;
+        		appwdgt->mus.coeff = 1;
 
                 	if (appwdgt->mus.is_paused)
                 	{
                         	appwdgt->mus.is_paused = 0;
                         	FMOD_ChannelGroup_SetPaused(canal, 0);
                 	}
+
+			if (appwdgt->spectre.created)
+            		{
+                		g_source_remove(appwdgt->spectre.timeout);
+                		appwdgt->spectre.created = 0;
+
+                		FMOD_Channel_RemoveDSP(appwdgt->mus.channel, appwdgt->mus.dspFFT);
+                		FMOD_DSP_Release(appwdgt->mus.dspFFT);
+
+                		if (appwdgt->spectre.hasheight)
+                		{
+                    			FMOD_Channel_RemoveDSP(appwdgt->mus.channel, appwdgt->mus.height);
+                    			appwdgt->mus.height = NULL;
+                		}
+            		}
+
+            		if (appwdgt->spectre.hasheight)
+            		{
+                    		FMOD_ChannelGroup_RemoveDSP(appwdgt->mus.master, appwdgt->mus.height);
+                    		FMOD_DSP_Release(appwdgt->mus.height);
+                    		appwdgt->spectre.hasheight = 0;
+            		}
 			
 			FMOD_BOOL mute;
                 	FMOD_ChannelGroup_GetMute(canal, &mute);
@@ -220,6 +270,7 @@ void RecordStart(Ui *appwdgt)
         			printf("%d : %s\n", count, name);
     			}
 
+			appwdgt->wave.record = 1;
     			FMOD_System_RecordStart(appwdgt->mus.system,0, appwdgt->mus.musique, 0);
 			gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.play_btn), FALSE);
         		gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.pause_btn), FALSE);
@@ -260,6 +311,8 @@ void RecordStop(Ui *appwdgt)
                 gtk_widget_set_sensitive(GTK_WIDGET(appwdgt->edit.stop_btn), FALSE);
 
 		FMOD_System_RecordStop(appwdgt->mus.system,0);
+		appwdgt->wave.record = 0;
+		Load(appwdgt, ".record.wav", 1);
 
     		g_print("%d", appwdgt->mus.musique == NULL);
 	}
@@ -340,6 +393,22 @@ void on_entry_activated(GtkWidget *entry, Ui *appwdgt)
        appwdgt->mus.save = g_timeout_add_seconds(3, G_SOURCE_FUNC(Message), appwdgt);	
 }
 
+void draw(Ui *appwdgt)
+{
+	g_source_remove(appwdgt->wave.cursor);
+	unsigned int ip;
+        FMOD_Channel_IsPlaying(appwdgt->mus.channel, &ip);
+	if (ip)
+	{
+	    appwdgt->wave.cursor = g_timeout_add_seconds(1, G_SOURCE_FUNC(draw), appwdgt);
+	    if (!appwdgt->mus.is_paused)
+	    {
+		appwdgt->wave.timer += 1;
+		gtk_widget_queue_draw(appwdgt->wave.drawW);
+	    }
+	}
+}
+
 void Attach(Ui *appwdgt)
 {
 	//On s'occupe de la zone du slider
@@ -349,9 +418,16 @@ void Attach(Ui *appwdgt)
 	gtk_scale_set_draw_value(GTK_SCALE(slider), FALSE);
 	g_signal_connect(slider, "value_changed", G_CALLBACK(Volume), appwdgt);
 
-	GtkWidget *draw = gtk_drawing_area_new();
-	
-	gtk_box_pack_start(GTK_BOX(new1), draw, TRUE, TRUE, 0);
+	appwdgt->wave.drawW = gtk_drawing_area_new();
+	appwdgt->wave.tab = NULL;
+	appwdgt->wave.sound_length_pcm_bytes = 0;
+	appwdgt->wave.sound_length_s = 0;
+	appwdgt->wave.record = 0;
+	appwdgt->wave.timer = 0;
+	appwdgt->wave.r = 0;
+	g_signal_connect(appwdgt->wave.drawW, "draw", G_CALLBACK(on_draw_wave), appwdgt);
+
+	gtk_box_pack_start(GTK_BOX(new1), appwdgt->wave.drawW, TRUE, TRUE, 0);
 	gtk_box_pack_start(GTK_BOX(new1), slider, TRUE, TRUE, 0);	
 		
 	//On s'occupe du shell et du spectre
@@ -515,7 +591,7 @@ void get_spectre(Ui *appwdgt)
 	else
 	{
 		g_source_remove(appwdgt->spectre.timeout);
-		appwdgt->spectre.timeout= g_timeout_add(50, G_SOURCE_FUNC(get_spectre), appwdgt);
+		appwdgt->spectre.timeout= g_timeout_add(200, G_SOURCE_FUNC(get_spectre), appwdgt);
 		FMOD_DSP_GetParameterData(appwdgt->mus.dspFFT, FMOD_DSP_FFT_SPECTRUMDATA,
 				(void **)&(appwdgt->mus.paramFFT), 0, 0, 0);
 		int width, height, xs;
@@ -566,4 +642,37 @@ void clean_spectre(Ui *appwdgt)
     }
 }
 
+void read_data(Ui *appwdgt)
+{
+	FMOD_RESULT result;
+	result = FMOD_Sound_GetLength(appwdgt->mus.musique, &appwdgt->wave.sound_length_pcm_bytes, FMOD_TIMEUNIT_PCMBYTES);
+	result = FMOD_Sound_GetLength(appwdgt->mus.musique, &appwdgt->wave.sound_length_s, FMOD_TIMEUNIT_MS);
+	if (result != FMOD_OK)
+		g_print("problème sur Getlength\n");
+
+	appwdgt->wave.sound_length_s = appwdgt->wave.sound_length_s*0.001f;
+
+	appwdgt->wave.tab = malloc(appwdgt->wave.sound_length_pcm_bytes*sizeof(char));
+	if (appwdgt->wave.tab == NULL)
+		g_print("ça a pas marché le malloc\n");
+
+	FMOD_Sound_SeekData(appwdgt->mus.musique, 0);
+	result = FMOD_Sound_ReadData(appwdgt->mus.musique, appwdgt->wave.tab, appwdgt->wave.sound_length_pcm_bytes, &appwdgt->wave.r);
+	
+        if (result!=FMOD_OK)
+                g_print("problème sur le readdata\n");
+	
+	for (int i = 0; i<appwdgt->wave.sound_length_pcm_bytes; i++)
+        {
+                if (i<appwdgt->wave.r)
+                {
+                        if (appwdgt->wave.tab[i] == 0)
+                                appwdgt->wave.tab[i] = 1;
+                        if (appwdgt->wave.tab[i] < 0)
+                                appwdgt->wave.tab[i] = -(appwdgt->wave.tab[i]);
+                }
+                else
+                        appwdgt->wave.tab[i] = 0;
+        }
+}
 

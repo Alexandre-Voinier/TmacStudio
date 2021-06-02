@@ -34,6 +34,18 @@ typedef struct Spectre
     int hasheight;
 }Spectre;
 
+typedef struct Wave
+{
+	GtkWidget *drawW;
+	char *tab;
+	int sound_length_pcm_bytes;
+	int sound_length_s;
+	int timer;
+	guint cursor;
+	int r;
+	int record;
+}Wave;
+
 typedef struct MusStruct
 {
         FMOD_SYSTEM *system;
@@ -73,6 +85,7 @@ typedef struct Ui
     SplashStruct splash;
     EditScreen edit;
     Spectre spectre;
+    Wave wave;
 
     MusStruct mus;
 }Ui;
@@ -102,7 +115,7 @@ void on_window_destroy();
 // musique.h
 //Fonctions
 
-void Load(Ui *appwdgt, char* musique);
+void Load(Ui *appwdgt, char* musique, int s);
 
 void Play(Ui *appwdgt);
 
@@ -115,6 +128,8 @@ void RecordStart(Ui *appwdgt);
 void RecordStop(Ui *appwdgt);
 
 void on_entry_activated(GtkWidget *entry, Ui *appwdgt);
+
+void draw(Ui *appwdgt);
 
 void Attach(Ui *appwdgt);
 
@@ -131,5 +146,7 @@ void WriteWavHeader(FILE *fp, Ui *appwdgt, int length);
 void get_spectre(Ui *appwdgt);
 
 void clean_spectre(Ui *appwdgt);
+
+void read_data(Ui *appwdgt);
 
 #endif

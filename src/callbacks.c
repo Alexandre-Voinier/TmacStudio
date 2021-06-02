@@ -10,6 +10,7 @@ void on_new_btn_activated(GtkMenuItem *btn, Ui *appwdgt)
 {
 	if (appwdgt->mus.musique != NULL)
 	{
+		g_source_remove(appwdgt->wave.cursor);
 		appwdgt->mus.isloop = 0;
 		clean_spectre(appwdgt);
 		FMOD_Sound_Release(appwdgt->mus.musique);
@@ -46,7 +47,7 @@ void on_open_btn_activated(GtkMenuItem *btn, Ui *appwdgt)
                 char *filename;
                 GtkFileChooser *chooser = GTK_FILE_CHOOSER (dialog);
                 filename = gtk_file_chooser_get_filename (chooser);
-                Load(appwdgt, filename);
+                Load(appwdgt, filename, 0);
         }
         gtk_widget_destroy (dialog);
 }
@@ -135,6 +136,48 @@ void on_draw_spectrum(GtkWidget *drawarea, cairo_t *cr, Ui *appwdgt)
 	    cairo_fill(cr);
 	}
     }
+}
+
+void on_draw_wave(GtkWidget *drawarea, cairo_t *cr, Ui *appwdgt)
+{
+       	cairo_set_source_rgb(cr, 1, 1, 1);
+        cairo_paint(cr);
+
+        int width = gtk_widget_get_allocated_width(appwdgt->wave.drawW);
+        int height = (gtk_widget_get_allocated_height(appwdgt->wave.drawW))/2;
+		
+        float heightscale = (float)height * 0.005f;
+		
+        cairo_set_source_rgb(cr, 0, 0, 0);
+
+	int y = 0;
+	int pas = appwdgt->wave.sound_length_pcm_bytes / width;
+        for (int x = 0; x<width; x++)
+        {
+		if (x < appwdgt->wave.r)
+		{
+			while (y < (appwdgt->wave.tab[x*pas])*heightscale && y<height)
+				y+=1;
+			if (y == 0)
+				cairo_rectangle(cr, x, height-1, 1, 1);
+			else
+				cairo_rectangle(cr, x, height-y, 1, y*2);
+			y = 0;
+		}
+		else
+			cairo_rectangle(cr, x, height, 1, 1);
+        }
+	cairo_fill(cr);
+
+	if (!appwdgt->wave.record && appwdgt->wave.sound_length_s > 2)
+	{
+		cairo_set_source_rgb(cr, 1, 0, 0);
+
+		int level = ((float)(appwdgt->wave.timer%appwdgt->wave.sound_length_s)/appwdgt->wave.sound_length_s)*width;
+		printf("%i\n", level);
+		cairo_rectangle(cr, level, 0, 2, (height-1)*2);
+              	cairo_fill(cr);
+	}
 }
 
 //============================= End Function =================================//
