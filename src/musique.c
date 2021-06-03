@@ -2,6 +2,8 @@
 #include "../includes/ui.h"
 #include "../includes/callbacks.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 void Load(Ui *appwdgt, char* musique, int s)
 {
@@ -74,6 +76,7 @@ void Load(Ui *appwdgt, char* musique, int s)
 	appwdgt->wave.timer = 0;
 	read_data(appwdgt);
 	gtk_widget_queue_draw(appwdgt->wave.drawW);
+	appwdgt->mus.play1 = 1;
     }
 }
 
@@ -125,13 +128,19 @@ void Play(Ui *appwdgt)
 		FMOD_System_CreateDSPByType(appwdgt->mus.system, FMOD_DSP_TYPE_FFT, &(appwdgt->mus.dspFFT));
 		FMOD_Channel_AddDSP(appwdgt->mus.channel, FMOD_CHANNELCONTROL_DSP_HEAD, appwdgt->mus.dspFFT);
 		FMOD_DSP_SetParameterInt(appwdgt->mus.dspFFT, FMOD_DSP_FFT_WINDOWSIZE, 1024);
-		appwdgt->spectre.timeout = g_timeout_add(200, G_SOURCE_FUNC(get_spectre), appwdgt);
+		appwdgt->spectre.timeout = g_timeout_add(100, G_SOURCE_FUNC(get_spectre), appwdgt);
 	    }
 	    FMOD_BOOL mute;
 	    FMOD_ChannelGroup_GetMute(appwdgt->mus.master, &mute);
 	    FMOD_Channel_SetMute(appwdgt->mus.channel, mute);
 	    Height(appwdgt, appwdgt->mus.coeff);
 	    appwdgt->wave.cursor = g_timeout_add_seconds(1, G_SOURCE_FUNC(draw), appwdgt);
+	    if (appwdgt->mus.play1)
+	    {
+		appwdgt->mus.play1 = 0;
+		usleep(500000);
+		Play(appwdgt);
+	    }
 	}
 }
 
@@ -591,7 +600,7 @@ void get_spectre(Ui *appwdgt)
 	else
 	{
 		g_source_remove(appwdgt->spectre.timeout);
-		appwdgt->spectre.timeout= g_timeout_add(200, G_SOURCE_FUNC(get_spectre), appwdgt);
+		appwdgt->spectre.timeout= g_timeout_add(100, G_SOURCE_FUNC(get_spectre), appwdgt);
 		FMOD_DSP_GetParameterData(appwdgt->mus.dspFFT, FMOD_DSP_FFT_SPECTRUMDATA,
 				(void **)&(appwdgt->mus.paramFFT), 0, 0, 0);
 		int width, height, xs;
