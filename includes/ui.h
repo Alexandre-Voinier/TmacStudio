@@ -60,6 +60,9 @@ typedef struct MusStruct
 	int isloop;
 	int play1;
 
+    FMOD_REVERB3D *reverb;
+    int has_reverb;
+
 	FMOD_CREATESOUNDEXINFO exinfo;
 	unsigned int datalength;
 	unsigned int soundlength;
@@ -149,5 +152,7 @@ void get_spectre(Ui *appwdgt);
 void clean_spectre(Ui *appwdgt);
 
 void read_data(Ui *appwdgt);
+
+void Reverb(Ui *appwdgt);
 
 #endif

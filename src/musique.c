@@ -29,6 +29,14 @@ void Load(Ui *appwdgt, char* musique, int s)
 	    FMOD_ChannelGroup_SetPaused(appwdgt->mus.master, 0);
 	}
 
+	if (appwdgt->mus.has_reverb)
+	{
+		FMOD_RESULT r = FMOD_Reverb3D_Release(appwdgt->mus.reverb);
+		if (r != FMOD_OK)
+			g_print("There have been a problem while releasing the reverb\n");
+		appwdgt->mus.has_reverb = 0;
+	}
+
 	FMOD_BOOL mute;
 	FMOD_ChannelGroup_GetMute(appwdgt->mus.master, &mute);
 	if (mute)
@@ -685,3 +693,16 @@ void read_data(Ui *appwdgt)
         }
 }
 
+void Reverb(Ui *appwdgt)
+{
+	if (!appwdgt->mus.has_reverb)
+	{
+		appwdgt->mus.has_reverb = 1;
+		// Creation de l'objet de reverb
+		FMOD_RESULT r = FMOD_System_CreateReverb3D(appwdgt->mus.system, &(appwdgt->mus.reverb));
+		if (r != FMOD_OK)
+			g_print("There have been a problem while creating the reverb\n");
+
+		
+	}
+}
