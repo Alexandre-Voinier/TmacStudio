@@ -407,7 +407,7 @@ void on_entry_activated(GtkWidget *entry, Ui *appwdgt)
 		else
 			gtk_text_buffer_set_text(buffer, "The loop is now inactive.", 25);
 
-		Loop(appwdgt,(int)(strtol((char*)(chaine+5),NULL,10)));
+		Loop(appwdgt);
 	}
 
 	else if (Compare((char*)(chaine),"height",6) == 0)
@@ -516,12 +516,9 @@ void Mute(Ui* appwdgt)
 			FMOD_Channel_SetMute(appwdgt->mus.channel, 1);
 	}
 }
-void Loop(Ui *appwdgt, int booleen)
+void Loop(Ui *appwdgt)
 {
-    if (booleen)
-	appwdgt->mus.isloop = 1;
-    else
-	appwdgt->mus.isloop = 0;
+	appwdgt->mus.isloop = !(appwdgt->mus.isloop);
 }
 //à mettre dans le shell
 void Height(Ui *appwdgt, float coef)
