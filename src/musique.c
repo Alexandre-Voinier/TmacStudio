@@ -361,37 +361,37 @@ void on_entry_activated(GtkWidget *entry, Ui *appwdgt)
 
 	if (Compare((char*)(chaine),"recstop",7) == 0)
 	{
-		gtk_text_buffer_set(buffer, "The record has stoped.", 23);
+		gtk_text_buffer_set_text(buffer, "The record has stoped.", 23);
 		RecordStop(appwdgt);
 	}
 
 	else if (Compare((char*)(chaine),"rec",3) == 0)
 	{
-		gtk_text_buffer_set(buffer, "The record has start.", 22);
+		gtk_text_buffer_set_text(buffer, "The record has start.", 22);
 		RecordStart(appwdgt);
 	}
 
 	else if (Compare((char*)(chaine),"pause",5) == 0)
 	{
 		if (appwdgt->mus.is_paused)
-			gtk_text_buffer_set(buffer, "The sound is now unpaused.", 27);
+			gtk_text_buffer_set_text(buffer, "The sound is now unpaused.", 27);
 		else
-			gtk_text_buffer_set(buffer, "The sound is now paused.", 25);
+			gtk_text_buffer_set_text(buffer, "The sound is now paused.", 25);
 		Pause(appwdgt);
 	}
 
 	else if (Compare((char*)(chaine),"play",4) == 0)
 	{
-		gtk_text_buffer_set(buffer, "The sound is now playing.", 26);
+		gtk_text_buffer_set_text(buffer, "The sound is now playing.", 26);
 		Play(appwdgt);
 	}
 
 	else if (Compare((char*)(chaine),"mute",4) == 0)
 	{
 		if (appwdgt->mus.ismute)
-			gtk_text_buffer_set(buffer, "The sound is now unmuted.", 26);
+			gtk_text_buffer_set_text(buffer, "The sound is now unmuted.", 26);
 		else
-			gtk_text_buffer_set(buffer, "The sound is now muted.", 24);
+			gtk_text_buffer_set_text(buffer, "The sound is now muted.", 24);
 		Mute(appwdgt);
 	}
 
@@ -402,8 +402,8 @@ void on_entry_activated(GtkWidget *entry, Ui *appwdgt)
 	
 	else if (Compare((char*)(chaine),"loop",4) == 0)
 	{
-		if (appwdgt->mus.is_loop)
-			gtk_text_buffer_set(buffer, "The loop is now active.", 24);
+		if (appwdgt->mus.isloop)
+			gtk_text_buffer_set_text(buffer, "The loop is now active.", 24);
 		else
 			gtk_text_buffer_set_text(buffer, "The loop is now inactive.", 26);
 
