@@ -472,7 +472,7 @@ void Attach(Ui *appwdgt)
 	GtkWidget *TextS = gtk_text_view_new();
 	appwdgt->edit.TextS = TextS;
 	GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(appwdgt->edit.TextS));
-        gtk_text_buffer_set_text(buffer, "Choose a command between:\n    - mute\n    - loop\n    - height\n    - clear\n    - exit\n et bientot d'autres\n", 104);
+	gtk_text_buffer_set_text(buffer, "Choose a command between:\n    -play\n    -pause\n    -rec\n    -recstop\n    - mute\n    - loop\n    - height\n    - exit\n", 116);
 	GtkWidget *entry = gtk_entry_new();
 	g_signal_connect(entry, "activate", G_CALLBACK(on_entry_activated), appwdgt);
 	
