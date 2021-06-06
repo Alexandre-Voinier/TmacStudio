@@ -349,7 +349,7 @@ void Message(Ui *appwdgt)
 {
 
 	GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(appwdgt->edit.TextS));
-	gtk_text_buffer_set_text(buffer, "Choose a command between:\n    -play\n    -pause\n    -rec\n    -recstop\n    - mute\n    - loop\n    - height\n    - exit\n", 116);
+	gtk_text_buffer_set_text(buffer, "Choose a command between:\n    -play\n    -pause\n    -rec\n    -recstop\n    - mute\n    - loop\n    - height\n    - exit\n", 115);
 	g_source_remove(appwdgt->mus.save);
 }
 
@@ -361,37 +361,37 @@ void on_entry_activated(GtkWidget *entry, Ui *appwdgt)
 
 	if (Compare((char*)(chaine),"recstop",7) == 0)
 	{
-		gtk_text_buffer_set_text(buffer, "The record has stoped.", 23);
+		gtk_text_buffer_set_text(buffer, "The record has stoped.", 22);
 		RecordStop(appwdgt);
 	}
 
 	else if (Compare((char*)(chaine),"rec",3) == 0)
 	{
-		gtk_text_buffer_set_text(buffer, "The record has start.", 22);
+		gtk_text_buffer_set_text(buffer, "The record has start.", 21);
 		RecordStart(appwdgt);
 	}
 
 	else if (Compare((char*)(chaine),"pause",5) == 0)
 	{
 		if (appwdgt->mus.is_paused)
-			gtk_text_buffer_set_text(buffer, "The sound is now unpaused.", 27);
+			gtk_text_buffer_set_text(buffer, "The sound is now unpaused.", 26);
 		else
-			gtk_text_buffer_set_text(buffer, "The sound is now paused.", 25);
+			gtk_text_buffer_set_text(buffer, "The sound is now paused.", 24);
 		Pause(appwdgt);
 	}
 
 	else if (Compare((char*)(chaine),"play",4) == 0)
 	{
-		gtk_text_buffer_set_text(buffer, "The sound is now playing.", 26);
+		gtk_text_buffer_set_text(buffer, "The sound is now playing.", 25);
 		Play(appwdgt);
 	}
 
 	else if (Compare((char*)(chaine),"mute",4) == 0)
 	{
 		if (appwdgt->mus.ismute)
-			gtk_text_buffer_set_text(buffer, "The sound is now unmuted.", 26);
+			gtk_text_buffer_set_text(buffer, "The sound is now unmuted.", 25);
 		else
-			gtk_text_buffer_set_text(buffer, "The sound is now muted.", 24);
+			gtk_text_buffer_set_text(buffer, "The sound is now muted.", 23);
 		Mute(appwdgt);
 	}
 
@@ -403,9 +403,9 @@ void on_entry_activated(GtkWidget *entry, Ui *appwdgt)
 	else if (Compare((char*)(chaine),"loop",4) == 0)
 	{
 		if (appwdgt->mus.isloop)
-			gtk_text_buffer_set_text(buffer, "The loop is now active.", 24);
+			gtk_text_buffer_set_text(buffer, "The loop is now active.", 23);
 		else
-			gtk_text_buffer_set_text(buffer, "The loop is now inactive.", 26);
+			gtk_text_buffer_set_text(buffer, "The loop is now inactive.", 25);
 
 		Loop(appwdgt,(int)(strtol((char*)(chaine+5),NULL,10)));
 	}
@@ -413,7 +413,7 @@ void on_entry_activated(GtkWidget *entry, Ui *appwdgt)
 	else if (Compare((char*)(chaine),"height",6) == 0)
 	{
 		Height(appwdgt,strtof((char*)(chaine+7),NULL));
-		gtk_text_buffer_set_text(buffer, "The height has been modified.", 30);
+		gtk_text_buffer_set_text(buffer, "The height has been modified.", 29);
 	}
 	
 	gtk_editable_delete_text(GTK_EDITABLE(entry), 0, -1); // ça ça clean le texte tapé dans l'entré
@@ -472,7 +472,7 @@ void Attach(Ui *appwdgt)
 	GtkWidget *TextS = gtk_text_view_new();
 	appwdgt->edit.TextS = TextS;
 	GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(appwdgt->edit.TextS));
-	gtk_text_buffer_set_text(buffer, "Choose a command between:\n    -play\n    -pause\n    -rec\n    -recstop\n    - mute\n    - loop\n    - height\n    - exit\n", 116);
+	gtk_text_buffer_set_text(buffer, "Choose a command between:\n    -play\n    -pause\n    -rec\n    -recstop\n    - mute\n    - loop\n    - height\n    - exit\n", 115);
 	GtkWidget *entry = gtk_entry_new();
 	g_signal_connect(entry, "activate", G_CALLBACK(on_entry_activated), appwdgt);
 	
