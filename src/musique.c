@@ -403,9 +403,9 @@ void on_entry_activated(GtkWidget *entry, Ui *appwdgt)
 	else if (Compare((char*)(chaine),"loop",4) == 0)
 	{
 		if (appwdgt->mus.isloop)
-			gtk_text_buffer_set_text(buffer, "The loop is now active.", 23);
-		else
 			gtk_text_buffer_set_text(buffer, "The loop is now inactive.", 25);
+		else
+			gtk_text_buffer_set_text(buffer, "The loop is now active.", 23);
 
 		Loop(appwdgt);
 	}
