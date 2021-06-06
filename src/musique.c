@@ -349,7 +349,7 @@ void Message(Ui *appwdgt)
 {
 
 	GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(appwdgt->edit.TextS));
-	gtk_text_buffer_set_text(buffer, "Choose a command between:\n    -play\n    -pause\n    -rec\n    -recstop\n    - mute\n    - loop\n    - height\n    - exit\n", 127);
+	gtk_text_buffer_set_text(buffer, "Choose a command between:\n    -play\n    -pause\n    -rec\n    -recstop\n    - mute\n    - loop\n    - height\n    - exit\n", 116);
 	g_source_remove(appwdgt->mus.save);
 }
 
@@ -417,7 +417,7 @@ void on_entry_activated(GtkWidget *entry, Ui *appwdgt)
 	}
 	
 	gtk_editable_delete_text(GTK_EDITABLE(entry), 0, -1); // ça ça clean le texte tapé dans l'entré
-	appwdgt->mus.save = g_timeout_add_seconds(3, G_SOURCE_FUNC(Message), appwdgt);
+	appwdgt->mus.save = g_timeout_add_seconds(5, G_SOURCE_FUNC(Message), appwdgt);
 }
 
 void draw(Ui *appwdgt)
