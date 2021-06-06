@@ -142,7 +142,7 @@ void Volume(GtkWidget *slider, Ui *appwdgt);
 
 void Mute(Ui* appwdgt);
 
-void Loop(Ui *appwdgt, int booleen);
+void Loop(Ui *appwdgt);
 
 void Height(Ui *appwdgt, float coef);
 

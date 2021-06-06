@@ -640,8 +640,8 @@ void get_spectre(Ui *appwdgt)
 void clean_spectre(Ui *appwdgt)
 {
     if (appwdgt->mus.isloop)
-	Play(appwdgt);
-    else
+		Play(appwdgt);
+	else
     {
 	g_source_remove(appwdgt->spectre.timeout);
 	FMOD_Channel_RemoveDSP(appwdgt->mus.channel, appwdgt->mus.dspFFT);
