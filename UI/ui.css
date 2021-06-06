@@ -1,0 +1,34 @@
+button
+{
+    border: 2px solid black;
+    font-size: x-large;
+    color: white;
+}
+
+button:hover
+{
+    background: red;
+}
+
+*
+{
+    background: rgb(127,127,127);
+}
+
+menuitem
+{
+    border: 1px solid black;
+}
+
+textview
+{
+    font-size: xx-large;
+    font-weight: lighter;
+}
+
+entry
+{
+    background: rgb(23,23,23);
+    color: rgb(255,255,255);
+    font-size: xx-large;
+}

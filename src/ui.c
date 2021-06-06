@@ -17,6 +17,10 @@ int ui()
     gtk_builder_add_from_file(appwdgt->builder, "UI/ui.glade", NULL);
 
     on_start_up(appwdgt);
+    GtkCssProvider *cssProvider = gtk_css_provider_new();
+    gtk_css_provider_load_from_path(cssProvider, "UI/ui.css", NULL);
+    gtk_style_context_add_provider_for_screen(gdk_screen_get_default(),
+	    GTK_STYLE_PROVIDER(cssProvider), GTK_STYLE_PROVIDER_PRIORITY_USER);
 
     gtk_main();
 

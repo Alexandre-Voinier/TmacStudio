@@ -124,11 +124,11 @@ void on_stop_btn_clicked(GtkButton *btn, Ui *appwdgt)
 
 void on_draw_spectrum(GtkWidget *drawarea, cairo_t *cr, Ui *appwdgt)
 {
-    cairo_set_source_rgb(cr, 1, 1, 1);
+    cairo_set_source_rgb(cr, 0.49, 0.49, 0.49);
     cairo_paint(cr);
     if (appwdgt->spectre.created)
     {
-	cairo_set_source_rgb(cr, 1, 0, 0);
+	cairo_set_source_rgb(cr, 0.35, 0.81, 0.75);
 	for (int i = 0; i < 512; i++)
 	{
 	    GdkRectangle rect = appwdgt->spectre.rects[i];
@@ -140,7 +140,7 @@ void on_draw_spectrum(GtkWidget *drawarea, cairo_t *cr, Ui *appwdgt)
 
 void on_draw_wave(GtkWidget *drawarea, cairo_t *cr, Ui *appwdgt)
 {
-       	cairo_set_source_rgb(cr, 1, 1, 1);
+       	cairo_set_source_rgb(cr, 0.49, 0.49, 0.49);
         cairo_paint(cr);
 
         int width = gtk_widget_get_allocated_width(appwdgt->wave.drawW);
@@ -148,7 +148,7 @@ void on_draw_wave(GtkWidget *drawarea, cairo_t *cr, Ui *appwdgt)
 		
         float heightscale = (float)height * 0.005f;
 		
-        cairo_set_source_rgb(cr, 0, 0, 0);
+        cairo_set_source_rgb(cr, 0.35, 0.81, 0.75);
 
 	int y = 0;
 	int pas = appwdgt->wave.sound_length_pcm_bytes / width;
