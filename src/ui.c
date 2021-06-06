@@ -182,5 +182,6 @@ void init_musStruct(Ui *appwdgt)
 	appwdgt->spectre.hasheight = 0;
 	appwdgt->mus.play1 = 1;
   appwdgt->mus.has_reverb = 0;
+  appwdgt->mus.ismute = 0;
 }
 

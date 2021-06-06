@@ -23,6 +23,7 @@ void Load(Ui *appwdgt, char* musique, int s)
 	appwdgt->mus.isloop = 0;
 	appwdgt->mus.coeff = 1;
 
+	
 	if (appwdgt->mus.is_paused)
 	{
 	    appwdgt->mus.is_paused = 0;
@@ -37,10 +38,11 @@ void Load(Ui *appwdgt, char* musique, int s)
 		appwdgt->mus.has_reverb = 0;
 	}
 
-	FMOD_BOOL mute;
-	FMOD_ChannelGroup_GetMute(appwdgt->mus.master, &mute);
-	if (mute)
+	if (appwdgt->mus.ismute)
+	{
 	    FMOD_ChannelGroup_SetMute(appwdgt->mus.master, 0);
+		appwdgt->mus.ismute = 0;
+	}
 
 	if (appwdgt->spectre.created)
 	{
@@ -330,8 +332,6 @@ void RecordStop(Ui *appwdgt)
 		FMOD_System_RecordStop(appwdgt->mus.system,0);
 		appwdgt->wave.record = 0;
 		Load(appwdgt, ".record.wav", 1);
-
-    		g_print("%d", appwdgt->mus.musique == NULL);
 	}
 }
 
@@ -349,7 +349,7 @@ void Message(Ui *appwdgt)
 {
 
 	GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(appwdgt->edit.TextS));
-	gtk_text_buffer_set_text(buffer, "Choose a command between:\n    -play\n    -pause\n    -rec\n    -recstop\n    - mute\n    - loop\n    - height\n    - clear\n    - exit\n", 127);
+	gtk_text_buffer_set_text(buffer, "Choose a command between:\n    -play\n    -pause\n    -rec\n    -recstop\n    - mute\n    - loop\n    - height\n    - exit\n", 127);
 	g_source_remove(appwdgt->mus.save);
 }
 
@@ -358,63 +358,73 @@ void on_entry_activated(GtkWidget *entry, Ui *appwdgt)
 	GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(appwdgt->edit.TextS));
 	// tu peux utiliser cette chaine comme la chaine globale entrée :)
 	const gchar* chaine = gtk_entry_get_text(GTK_ENTRY(entry));
-	if (Compare((char*)(chaine),"recstop",7) == 0)
-		RecordStop(appwdgt);
-	else
-	{
-		if (Compare((char*)(chaine),"rec",3) == 0)
-			RecordStart(appwdgt);
-		else
-		{
-			if (Compare((char*)(chaine),"pause",5) == 0)
-				Pause(appwdgt);
-			else
-			{
-				if (Compare((char*)(chaine),"play",4) == 0)
-					Play(appwdgt);
-				else
-				{
-					if (Compare((char*)(chaine),"mute",4) == 0)
-					{
-							Mute(appwdgt);
-						gtk_text_buffer_set_text(buffer, "The sound has been muted", 26);
-					}
-					else
-					{
-						if (Compare((char*)(chaine),"exit",4) == 0)
-							gtk_main_quit();
 
-						else
-						{
-							if (Compare((char*)(chaine),"loop",4) == 0)
-							{
-								Loop(appwdgt,(int)(strtol((char*)(chaine+5),NULL,10)));
-								gtk_text_buffer_set_text(buffer, "The loop effect has been modified", 33);
-							}
-							else
-							{
-								if (Compare((char*)(chaine),"height",6) == 0)
-								{
-									Height(appwdgt,strtof((char*)(chaine+7),NULL));
-									gtk_text_buffer_set_text(buffer, "The height has been modified", 28);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+	if (Compare((char*)(chaine),"recstop",7) == 0)
+	{
+		gtk_text_buffer_set(buffer, "The record has stoped.", 23);
+		RecordStop(appwdgt);
+	}
+
+	else if (Compare((char*)(chaine),"rec",3) == 0)
+	{
+		gtk_text_buffer_set(buffer, "The record has start.", 22);
+		RecordStart(appwdgt);
+	}
+
+	else if (Compare((char*)(chaine),"pause",5) == 0)
+	{
+		if (appwdgt->mus.is_paused)
+			gtk_text_buffer_set(buffer, "The sound is now unpaused.", 27);
+		else
+			gtk_text_buffer_set(buffer, "The sound is now paused.", 25);
+		Pause(appwdgt);
+	}
+
+	else if (Compare((char*)(chaine),"play",4) == 0)
+	{
+		gtk_text_buffer_set(buffer, "The sound is now playing.", 26);
+		Play(appwdgt);
+	}
+
+	else if (Compare((char*)(chaine),"mute",4) == 0)
+	{
+		if (appwdgt->mus.ismute)
+			gtk_text_buffer_set(buffer, "The sound is now unmuted.", 26);
+		else
+			gtk_text_buffer_set(buffer, "The sound is now muted.", 24);
+		Mute(appwdgt);
+	}
+
+	else if (Compare((char*)(chaine),"exit",4) == 0)
+	{
+		gtk_main_quit();
+	}
+	
+	else if (Compare((char*)(chaine),"loop",4) == 0)
+	{
+		if (appwdgt->mus.is_loop)
+			gtk_text_buffer_set(buffer, "The loop is now active.", 24);
+		else
+			gtk_text_buffer_set_text(buffer, "The loop is now inactive.", 26);
+
+		Loop(appwdgt,(int)(strtol((char*)(chaine+5),NULL,10)));
+	}
+
+	else if (Compare((char*)(chaine),"height",6) == 0)
+	{
+		Height(appwdgt,strtof((char*)(chaine+7),NULL));
+		gtk_text_buffer_set_text(buffer, "The height has been modified.", 30);
 	}
 	
 	gtk_editable_delete_text(GTK_EDITABLE(entry), 0, -1); // ça ça clean le texte tapé dans l'entré
-       appwdgt->mus.save = g_timeout_add_seconds(3, G_SOURCE_FUNC(Message), appwdgt);	
+	appwdgt->mus.save = g_timeout_add_seconds(3, G_SOURCE_FUNC(Message), appwdgt);
 }
 
 void draw(Ui *appwdgt)
 {
 	g_source_remove(appwdgt->wave.cursor);
 	unsigned int ip;
-        FMOD_Channel_IsPlaying(appwdgt->mus.channel, &ip);
+	FMOD_Channel_IsPlaying(appwdgt->mus.channel, &ip);
 	if (ip)
 	{
 	    appwdgt->wave.cursor = g_timeout_add_seconds(1, G_SOURCE_FUNC(draw), appwdgt);
@@ -491,27 +501,20 @@ void Volume(GtkWidget *slider, Ui *appwdgt)
 
 void Mute(Ui* appwdgt)
 {
-    FMOD_RESULT result;
-    FMOD_BOOL mute;
-
-    result = FMOD_ChannelGroup_GetMute(appwdgt->mus.master, &mute);
-    if (result != FMOD_OK)
-	g_print("error while getting the mute's mode\n");
-    else
-    {
-	if (mute)
+	if (appwdgt->mus.ismute)
 	{
-	    FMOD_ChannelGroup_SetMute(appwdgt->mus.master, 0);
-	    if (appwdgt->spectre.created)
-		FMOD_Channel_SetMute(appwdgt->mus.channel, 0);
+		appwdgt->mus.ismute = 0;
+		FMOD_ChannelGroup_SetMute(appwdgt->mus.master, 0);
+		if (appwdgt->spectre.created)
+			FMOD_Channel_SetMute(appwdgt->mus.channel, 0);
 	}
 	else
 	{
-	    FMOD_ChannelGroup_SetMute(appwdgt->mus.master, 1);
-	    if (appwdgt->spectre.created)
-		FMOD_Channel_SetMute(appwdgt->mus.channel, 1);
+		appwdgt->mus.ismute = 1;
+		FMOD_ChannelGroup_SetMute(appwdgt->mus.master, 1);
+		if (appwdgt->spectre.created)
+			FMOD_Channel_SetMute(appwdgt->mus.channel, 1);
 	}
-    }
 }
 void Loop(Ui *appwdgt, int booleen)
 {

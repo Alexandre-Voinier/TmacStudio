@@ -58,6 +58,7 @@ typedef struct MusStruct
 	int is_paused;
 	int is_recording;
 	int isloop;
+    int ismute;
 	int play1;
 
     FMOD_REVERB3D *reverb;
