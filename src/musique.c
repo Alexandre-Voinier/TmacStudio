@@ -771,7 +771,7 @@ void Echo(Ui *appwdgt)
 		}
 		if (appwdgt->spectre.created)
 		{
-			r = FMOD_ChannelG_AddDSP(appwdgt->mus.channel, FMOD_CHANNELCONTROL_DSP_TAIL, appwdgt->mus.echo);
+			r = FMOD_Channel_AddDSP(appwdgt->mus.channel, FMOD_CHANNELCONTROL_DSP_TAIL, appwdgt->mus.echo);
 			if (r != FMOD_OK)
 				g_print("Eroor while adding echo DSP to the channel.\n");
 			appwdgt->spectre.has_echo = 1;
