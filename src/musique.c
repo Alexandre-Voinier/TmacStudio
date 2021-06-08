@@ -42,29 +42,50 @@ void Load(Ui *appwdgt, char* musique, int s)
 			FMOD_DSP_Release(appwdgt->mus.dspFFT);
 			appwdgt->spectre.created = 0;
 
+			// On verifie si le spectre avait de la hauteur
 			if (appwdgt->spectre.hasheight)
 			{
 				FMOD_Channel_RemoveDSP(appwdgt->mus.channel, appwdgt->mus.height);
 				appwdgt->mus.height = NULL;
 			}
 
+			// On verifie si le spectre avait de l'echo
 			if (appwdgt->spectre.has_echo)
 			{
 				FMOD_Channel_RemoveDSP(appwdgt->mus.channel, appwdgt->mus.echo);
 				appwdgt->spectre.has_echo = 0;
 			}
+			
+			// On verifie si le spectre avait de la reverb
+			if (appwdgt->spectre.has_reverb)
+			{
+				FMOD_Channel_RemoveDSP(appwdgt->mus.channel, appwdgt->mus.reverb);
+				appwdgt->spectre.has_reverb = 0;
+			}
 		}
+
+		// Si l'effet HAUTEUR etait ON on l'enleve
 		if (appwdgt->spectre.hasheight)
 		{
 			FMOD_ChannelGroup_RemoveDSP(appwdgt->mus.master, appwdgt->mus.height);
 			FMOD_DSP_Release(appwdgt->mus.height);
 			appwdgt->spectre.hasheight = 0;
 		}
+
+		// Si l'effet ECHO etait ON on l'enleve
 		if (appwdgt->mus.has_echo)
 		{
 			FMOD_ChannelGroup_RemoveDSP(appwdgt->mus.master, appwdgt->mus.echo);
 			FMOD_DSP_Release(appwdgt->mus.echo);
 			appwdgt->mus.has_echo = 0;
+		}
+
+		// Si l'effet REVERB etait ON on l'enleve
+		if (appwdgt->mus.reverb)
+		{
+			FMOD_ChannelGroup_RemoveDSP(appwdgt->mus.master, appwdgt->mus.reverb);
+			FMOD_DSP_Release(appwdgt->mus.reverb);
+			appwdgt->mus.has_reverb = 0;
 		}
 	}
 	else
@@ -104,6 +125,7 @@ void Play(Ui *appwdgt)
 		appwdgt->mus.is_paused = 0;
 	    }
 
+		// Gestion si le spectre est déjà crée
 	    if (appwdgt->spectre.created)
 	    {
 			g_source_remove(appwdgt->spectre.timeout);
@@ -117,10 +139,17 @@ void Play(Ui *appwdgt)
 				FMOD_Channel_RemoveDSP(appwdgt->mus.channel, appwdgt->mus.height);
 				appwdgt->mus.height = NULL;
 			}
+
 			if (appwdgt->spectre.has_echo)
 			{
 				FMOD_Channel_RemoveDSP(appwdgt->mus.channel, appwdgt->mus.echo);
 				appwdgt->spectre.has_echo = 0;
+			}
+
+			if (appwdgt->spectre.has_reverb)
+			{
+				FMOD_Channel_RemoveDSP(appwdgt->mus.channel, appwdgt->mus.reverb);
+				appwdgt->spectre.has_reverb = 0;
 			}
 		}
 
@@ -170,6 +199,16 @@ void Play(Ui *appwdgt)
 			FMOD_DSP_Release(appwdgt->mus.echo);
 			Echo(appwdgt);
 		}
+
+		// Gestion de la REVERB
+		if (appwdgt->mus.has_reverb)
+		{
+			appwdgt->mus.has_reverb = 0;
+			FMOD_ChannelGroup_RemoveDSP(appwdgt->mus.master, appwdgt->mus.reverb);
+			FMOD_DSP_Release(appwdgt->mus.reverb);
+			Reverb(appwdgt);
+		}
+
 		// Replay si jamais c'est la premiere fois qu'on joue le son depuis le load
 	    if (appwdgt->mus.play1)
 	    {
@@ -452,6 +491,16 @@ void on_entry_activated(GtkWidget *entry, Ui *appwdgt)
 		Echo(appwdgt);
 	}
 	
+	else if (Compare((char *)(chaine), "reverb", 6) == 0)
+	{
+		if (appwdgt->mus.has_reverb)
+			gtk_text_buffer_set_text(buffer, "The reverb is off now.", 22);
+		else
+			gtk_text_buffer_set_text(buffer, "The reverb is on now.", 21);
+
+		Reverb(appwdgt);
+	}
+
 	gtk_editable_delete_text(GTK_EDITABLE(entry), 0, -1); // ça ça clean le texte tapé dans l'entré
 	appwdgt->mus.save = g_timeout_add_seconds(5, G_SOURCE_FUNC(Message), appwdgt);
 }
@@ -777,5 +826,53 @@ void Echo(Ui *appwdgt)
 			appwdgt->spectre.has_echo = 1;
 		}
 		appwdgt->mus.has_echo = 1;
+	}
+}
+
+void Reverb(Ui *appwdgt)
+{
+	if (appwdgt->mus.has_echo)
+	{
+		FMOD_RESULT r;
+		r = FMOD_ChannelGroup_RemoveDSP(appwdgt->mus.master, appwdgt->mus.reverb);
+		if (r != FMOD_OK)
+		{
+			g_print("Error while deleting reverb DSP.\n");
+			return;
+		}
+
+		if (appwdgt->spectre.has_reverb)
+		{
+			r = FMOD_Channel_RemoveDSP(appwdgt->mus.channel, appwdgt->mus.reverb);
+			if (r != FMOD_OK)
+				g_print("Erro while deleting reverb DSP from channel.\n");
+			appwdgt->spectre.has_reverb = 0;
+		}
+		FMOD_DSP_Release(appwdgt->mus.reverb);
+		appwdgt->mus.has_reverb = 0;
+	}
+	else
+	{
+		FMOD_RESULT r;
+		r = FMOD_System_CreateDSPByType(appwdgt->mus.system, FMOD_DSP_TYPE_SFXREVERB, &(appwdgt->mus.reverb));
+		if (r != FMOD_OK)
+		{
+			g_print("Eroor while creating reverb DSP.\n");
+			return;
+		}
+		r = FMOD_ChannelGroup_AddDSP(appwdgt->mus.master, FMOD_CHANNELCONTROL_DSP_TAIL, appwdgt->mus.reverb);
+		if (r != FMOD_OK)
+		{
+			g_print("Error while adding reverb DSP.\n");
+			return;
+		}
+		if (appwdgt->spectre.created)
+		{
+			r = FMOD_Channel_AddDSP(appwdgt->mus.channel, FMOD_CHANNELCONTROL_DSP_TAIL, appwdgt->mus.channel);
+			if (r != FMOD_OK)
+				g_print("Error while adding reverb DSp to the channel.\n");
+			appwdgt->spectre.has_reverb = 1;	
+		}
+		appwdgt->mus.has_reverb = 1;
 	}
 }

@@ -184,8 +184,14 @@ void init_musStruct(Ui *appwdgt)
   appwdgt->mus.ismute = 0;
 
   // Variables pour l'ECHO
-  appwdgt->mus.has_echo = 0;
   appwdgt->spectre.has_echo = 0;
+  appwdgt->mus.has_echo = 0;
   appwdgt->mus.echo = NULL;
+
+  // Variables pour la REVERB
+  appwdgt->spectre.has_reverb = 0;
+  appwdgt->mus.has_reverb = 0;
+  appwdgt->mus.reverb = NULL;
+
 }
 
