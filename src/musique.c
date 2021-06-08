@@ -32,9 +32,11 @@ void Load(Ui *appwdgt, char* musique, int s)
 
 	if (appwdgt->mus.has_reverb)
 	{
-		FMOD_RESULT r = FMOD_Reverb3D_Release(appwdgt->mus.reverb);
-		if (r != FMOD_OK)
-			g_print("There have been a problem while releasing the reverb\n");
+		FMOD_RESULT r;
+		do
+		{
+			r = FMOD_Reverb3D_Release(appwdgt->mus.reverb);
+		} while (r != FMOD_OK);
 		appwdgt->mus.has_reverb = 0;
 	}
 
@@ -415,6 +417,16 @@ void on_entry_activated(GtkWidget *entry, Ui *appwdgt)
 		Height(appwdgt,strtof((char*)(chaine+7),NULL));
 		gtk_text_buffer_set_text(buffer, "The height has been modified.", 29);
 	}
+
+	else if (Compare((char*)(chaine), "reverb", 6) == 0)
+	{
+		if (appwdgt->mus.has_reverb)
+			gtk_text_buffer_set_text(buffer, "The reverb is off now.", 22);
+		else
+			gtk_text_buffer_set_text(buffer, "The reverb is on now.", 21);
+
+		Reverb(appwdgt);
+	}
 	
 	gtk_editable_delete_text(GTK_EDITABLE(entry), 0, -1); // ça ça clean le texte tapé dans l'entré
 	appwdgt->mus.save = g_timeout_add_seconds(5, G_SOURCE_FUNC(Message), appwdgt);
@@ -697,12 +709,34 @@ void Reverb(Ui *appwdgt)
 {
 	if (!appwdgt->mus.has_reverb)
 	{
-		appwdgt->mus.has_reverb = 1;
+		FMOD_RESULT r;
 		// Creation de l'objet de reverb
-		FMOD_RESULT r = FMOD_System_CreateReverb3D(appwdgt->mus.system, &(appwdgt->mus.reverb));
+		r = FMOD_System_CreateReverb3D(appwdgt->mus.system, &(appwdgt->mus.reverb));
 		if (r != FMOD_OK)
+		{
 			g_print("There have been a problem while creating the reverb\n");
+			return;
+		}
 
-		
+		r = FMOD_System_SetReverbProperties(appwdgt->mus.system, 0, FMOD_PRESET_GENERIC);
+		if (r != FMOD_OK)
+		{
+			g_print("There have been a problem while setting up the reverb\n");
+			do{
+				FMOD_Reverb3D_Release(appwdgt->mus.reverb);
+			} while (r != FMOD_OK);
+			
+			return;
+		}
+		appwdgt->mus.has_reverb = 1;
+	}
+	else
+	{
+		appwdgt->mus.has_reverb = 0;
+		FMOD_RESULT r;
+		do
+		{
+			r = FMOD_Reverb3D_Release(appwdgt->mus.reverb);
+		} while (r != FMOD_OK);
 	}
 }
