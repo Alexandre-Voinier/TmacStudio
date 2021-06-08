@@ -868,7 +868,7 @@ void Reverb(Ui *appwdgt)
 		}
 		if (appwdgt->spectre.created)
 		{
-			r = FMOD_Channel_AddDSP(appwdgt->mus.channel, FMOD_CHANNELCONTROL_DSP_TAIL, appwdgt->mus.channel);
+			r = FMOD_Channel_AddDSP(appwdgt->mus.channel, FMOD_CHANNELCONTROL_DSP_TAIL, appwdgt->mus.reverb);
 			if (r != FMOD_OK)
 				g_print("Error while adding reverb DSp to the channel.\n");
 			appwdgt->spectre.has_reverb = 1;	
