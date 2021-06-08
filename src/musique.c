@@ -13,61 +13,61 @@ void Load(Ui *appwdgt, char* musique, int s)
     int first = 0;
     if (appwdgt->mus.musique != NULL)
     {
-	g_source_remove(appwdgt->wave.cursor);
-	FMOD_Sound_Release(appwdgt->mus.musique);
-	appwdgt->mus.soundlength = 0;
-	appwdgt->mus.datalength = 0;
-	if (!s)
-		appwdgt->mus.fd = NULL;
-	appwdgt->mus.save = 0;
-	appwdgt->mus.isloop = 0;
-	appwdgt->mus.coeff = 1;
+		g_source_remove(appwdgt->wave.cursor);
+		FMOD_Sound_Release(appwdgt->mus.musique);
+		appwdgt->mus.soundlength = 0;
+		appwdgt->mus.datalength = 0;
+		if (!s)
+			appwdgt->mus.fd = NULL;
+		appwdgt->mus.save = 0;
+		appwdgt->mus.isloop = 0;
+		appwdgt->mus.coeff = 1;
 
-	
-	if (appwdgt->mus.is_paused)
-	{
-	    appwdgt->mus.is_paused = 0;
-	    FMOD_ChannelGroup_SetPaused(appwdgt->mus.master, 0);
-	}
-
-	if (appwdgt->mus.has_reverb)
-	{
-		FMOD_RESULT r;
-		do
+		if (appwdgt->mus.is_paused)
 		{
-			r = FMOD_Reverb3D_Release(appwdgt->mus.reverb);
-		} while (r != FMOD_OK);
-		appwdgt->mus.has_reverb = 0;
+			appwdgt->mus.is_paused = 0;
+			FMOD_ChannelGroup_SetPaused(appwdgt->mus.master, 0);
+		}
+
+		if (appwdgt->mus.ismute)
+		{
+			FMOD_ChannelGroup_SetMute(appwdgt->mus.master, 0);
+			appwdgt->mus.ismute = 0;
+		}
+
+		if (appwdgt->spectre.created)
+		{
+			g_source_remove(appwdgt->spectre.timeout);
+			FMOD_Channel_RemoveDSP(appwdgt->mus.channel, appwdgt->mus.dspFFT);
+			FMOD_DSP_Release(appwdgt->mus.dspFFT);
+			appwdgt->spectre.created = 0;
+
+			if (appwdgt->spectre.hasheight)
+			{
+				FMOD_Channel_RemoveDSP(appwdgt->mus.channel, appwdgt->mus.height);
+				appwdgt->mus.height = NULL;
+			}
+
+			if (appwdgt->spectre.has_echo)
+			{
+				FMOD_Channel_RemoveDSP(appwdgt->mus.channel, appwdgt->mus.echo);
+				appwdgt->spectre.has_echo = 0;
+			}
+		}
+		if (appwdgt->spectre.hasheight)
+		{
+			FMOD_ChannelGroup_RemoveDSP(appwdgt->mus.master, appwdgt->mus.height);
+			FMOD_DSP_Release(appwdgt->mus.height);
+			appwdgt->spectre.hasheight = 0;
+		}
+		if (appwdgt->mus.has_echo)
+		{
+			FMOD_ChannelGroup_RemoveDSP(appwdgt->mus.master, appwdgt->mus.echo);
+			FMOD_DSP_Release(appwdgt->mus.echo);
+			appwdgt->mus.has_echo = 0;
+		}
 	}
-
-	if (appwdgt->mus.ismute)
-	{
-	    FMOD_ChannelGroup_SetMute(appwdgt->mus.master, 0);
-		appwdgt->mus.ismute = 0;
-	}
-
-	if (appwdgt->spectre.created)
-	{
-	    g_source_remove(appwdgt->spectre.timeout);
-	    FMOD_Channel_RemoveDSP(appwdgt->mus.channel, appwdgt->mus.dspFFT);
-	    FMOD_DSP_Release(appwdgt->mus.dspFFT);
-	    appwdgt->spectre.created = 0;
-
-	    if (appwdgt->spectre.hasheight)
-            {
-                 FMOD_Channel_RemoveDSP(appwdgt->mus.channel, appwdgt->mus.height);
-                 appwdgt->mus.height = NULL;
-            }
-
-	}
-	if (appwdgt->spectre.hasheight)
-        {
-             FMOD_ChannelGroup_RemoveDSP(appwdgt->mus.master, appwdgt->mus.height);
-             FMOD_DSP_Release(appwdgt->mus.height);
-             appwdgt->spectre.hasheight = 0;
-        }
-    }
-    else
+	else
 	first = 1;
 
     result = FMOD_System_CreateSound(appwdgt->mus.system, musique, FMOD_CREATESTREAM, 0, &(musi));
@@ -106,18 +106,23 @@ void Play(Ui *appwdgt)
 
 	    if (appwdgt->spectre.created)
 	    {
-		g_source_remove(appwdgt->spectre.timeout);
-		appwdgt->spectre.created = 0;
+			g_source_remove(appwdgt->spectre.timeout);
+			appwdgt->spectre.created = 0;
 
-		FMOD_Channel_RemoveDSP(appwdgt->mus.channel, appwdgt->mus.dspFFT);
-		FMOD_DSP_Release(appwdgt->mus.dspFFT);
+			FMOD_Channel_RemoveDSP(appwdgt->mus.channel, appwdgt->mus.dspFFT);
+			FMOD_DSP_Release(appwdgt->mus.dspFFT);
 
-		if (appwdgt->spectre.hasheight)
-		{
-		    FMOD_Channel_RemoveDSP(appwdgt->mus.channel, appwdgt->mus.height);
-		    appwdgt->mus.height = NULL;
+			if (appwdgt->spectre.hasheight)
+			{
+				FMOD_Channel_RemoveDSP(appwdgt->mus.channel, appwdgt->mus.height);
+				appwdgt->mus.height = NULL;
+			}
+			if (appwdgt->spectre.has_echo)
+			{
+				FMOD_Channel_RemoveDSP(appwdgt->mus.channel, appwdgt->mus.echo);
+				appwdgt->spectre.has_echo = 0;
+			}
 		}
-	    }
 
 	    if (appwdgt->spectre.hasheight)
 	    {
@@ -131,22 +136,41 @@ void Play(Ui *appwdgt)
 	    appwdgt->wave.timer = 0;
 	    FMOD_System_PlaySound(appwdgt->mus.system, appwdgt->mus.musique, appwdgt->mus.master, 0,
 		    &(appwdgt->mus.channel));
+
+		// Gestion du VOLUME
 	    float volume;
 	    FMOD_ChannelGroup_GetVolume(appwdgt->mus.master, &volume);
 	    FMOD_Channel_SetVolume(appwdgt->mus.channel, volume);
+
+		// Creation du SPECTRE
 	    if(!appwdgt->spectre.created)
-	    {
-		appwdgt->spectre.created = 1;
-		FMOD_System_CreateDSPByType(appwdgt->mus.system, FMOD_DSP_TYPE_FFT, &(appwdgt->mus.dspFFT));
-		FMOD_Channel_AddDSP(appwdgt->mus.channel, FMOD_CHANNELCONTROL_DSP_HEAD, appwdgt->mus.dspFFT);
-		FMOD_DSP_SetParameterInt(appwdgt->mus.dspFFT, FMOD_DSP_FFT_WINDOWSIZE, 1024);
-		appwdgt->spectre.timeout = g_timeout_add(100, G_SOURCE_FUNC(get_spectre), appwdgt);
-	    }
-	    FMOD_BOOL mute;
+		{
+			appwdgt->spectre.created = 1;
+			FMOD_System_CreateDSPByType(appwdgt->mus.system, FMOD_DSP_TYPE_FFT, &(appwdgt->mus.dspFFT));
+			FMOD_Channel_AddDSP(appwdgt->mus.channel, FMOD_CHANNELCONTROL_DSP_HEAD, appwdgt->mus.dspFFT);
+			FMOD_DSP_SetParameterInt(appwdgt->mus.dspFFT, FMOD_DSP_FFT_WINDOWSIZE, 1024);
+			appwdgt->spectre.timeout = g_timeout_add(100, G_SOURCE_FUNC(get_spectre), appwdgt);
+		}
+
+		// Gestion de MUTE
+		FMOD_BOOL mute;
 	    FMOD_ChannelGroup_GetMute(appwdgt->mus.master, &mute);
 	    FMOD_Channel_SetMute(appwdgt->mus.channel, mute);
+
+		// Gestion de la HAUTEUR
 	    Height(appwdgt, appwdgt->mus.coeff);
+
 	    appwdgt->wave.cursor = g_timeout_add_seconds(1, G_SOURCE_FUNC(draw), appwdgt);
+
+		// Gestion de l'ECHO
+		if (appwdgt->mus.has_echo)
+		{
+			appwdgt->mus.has_echo = 0;
+			FMOD_ChannelGroup(appwdgt->mus.master, appwdgt->mus.echo);
+			FMOD_DSP_Release(appwdgt->mus.echo);
+			Echo(appwdgt);
+		}
+		// Replay si jamais c'est la premiere fois qu'on joue le son depuis le load
 	    if (appwdgt->mus.play1)
 	    {
 		appwdgt->mus.play1 = 0;
@@ -418,14 +442,14 @@ void on_entry_activated(GtkWidget *entry, Ui *appwdgt)
 		gtk_text_buffer_set_text(buffer, "The height has been modified.", 29);
 	}
 
-	else if (Compare((char*)(chaine), "reverb", 6) == 0)
+	else if (Compare((char*)(chaine), "echo", 4) == 0)
 	{
-		if (appwdgt->mus.has_reverb)
-			gtk_text_buffer_set_text(buffer, "The reverb is off now.", 22);
+		if (appwdgt->mus.has_echo)
+			gtk_text_buffer_set_text(buffer, "The echo is off now.", 22);
 		else
-			gtk_text_buffer_set_text(buffer, "The reverb is on now.", 21);
+			gtk_text_buffer_set_text(buffer, "The echo is on now.", 21);
 
-		Reverb(appwdgt);
+		Echo(appwdgt)
 	}
 	
 	gtk_editable_delete_text(GTK_EDITABLE(entry), 0, -1); // ça ça clean le texte tapé dans l'entré
@@ -655,20 +679,25 @@ void clean_spectre(Ui *appwdgt)
 		Play(appwdgt);
 	else
     {
-	g_source_remove(appwdgt->spectre.timeout);
-	FMOD_Channel_RemoveDSP(appwdgt->mus.channel, appwdgt->mus.dspFFT);
-	FMOD_DSP_Release(appwdgt->mus.dspFFT);
-	appwdgt->spectre.created = 0;
-	gtk_widget_queue_draw(appwdgt->spectre.visuSpectre);
-	if (appwdgt->spectre.hasheight)
-	{
-	    FMOD_ChannelGroup_RemoveDSP(appwdgt->mus.master, appwdgt->mus.height);
-	    FMOD_Channel_RemoveDSP(appwdgt->mus.channel, appwdgt->mus.height);
-	    FMOD_DSP_Release(appwdgt->mus.height);
-	    appwdgt->mus.height = NULL;
-    }
-	appwdgt->spectre.hasheight = 0;
-    }
+		g_source_remove(appwdgt->spectre.timeout);
+		FMOD_Channel_RemoveDSP(appwdgt->mus.channel, appwdgt->mus.dspFFT);
+		FMOD_DSP_Release(appwdgt->mus.dspFFT);
+		appwdgt->spectre.created = 0;
+		gtk_widget_queue_draw(appwdgt->spectre.visuSpectre);
+		if (appwdgt->spectre.hasheight)
+		{
+			FMOD_ChannelGroup_RemoveDSP(appwdgt->mus.master, appwdgt->mus.height);
+			FMOD_Channel_RemoveDSP(appwdgt->mus.channel, appwdgt->mus.height);
+			FMOD_DSP_Release(appwdgt->mus.height);
+			appwdgt->mus.height = NULL;
+		}
+		appwdgt->spectre.hasheight = 0;
+		if (appwdgt->spectre.has_echo)
+		{
+			FMOD_Channel_RemoveDSP(appwdgt.mus.channel, appwdgt->mus.echo);
+			appwdgt->spectre.has_echo = 0;
+		}
+	}
 }
 
 void read_data(Ui *appwdgt)
@@ -705,38 +734,48 @@ void read_data(Ui *appwdgt)
         }
 }
 
-void Reverb(Ui *appwdgt)
+void Echo(Ui *appwdgt)
 {
-	if (!appwdgt->mus.has_reverb)
+	if (appwdgt->mus.has_echo)
 	{
 		FMOD_RESULT r;
-		// Creation de l'objet de reverb
-		r = FMOD_System_CreateReverb3D(appwdgt->mus.system, &(appwdgt->mus.reverb));
+		r = FMOD_ChannelGroup_RemoveDSP(appwdgt->mus.master, appwdgt->mus.echo);
 		if (r != FMOD_OK)
 		{
-			g_print("There have been a problem while creating the reverb\n");
+			g_print("Error while deleting echo DSP.\n");
 			return;
 		}
-
-		r = FMOD_System_SetReverbProperties(appwdgt->mus.system, 0, FMOD_PRESET_GENERIC);
-		if (r != FMOD_OK)
+		if (appwdgt->spectre.has_echo)
 		{
-			g_print("There have been a problem while setting up the reverb\n");
-			do{
-				FMOD_Reverb3D_Release(appwdgt->mus.reverb);
-			} while (r != FMOD_OK);
-			
-			return;
+			r = FMOD_Channel_RemoveDSP(appwdgt->mus.channel, appwdgt->mus.echo);
+			if (r != FMOD_OK)
+				g_print("Error whihle deleting echo DSP.\n");
 		}
-		appwdgt->mus.has_reverb = 1;
+		FMOD_DSP_Release(appwdgt->mus.echo);
+		appwdgt->mus.has_echo = 0;
 	}
 	else
 	{
-		appwdgt->mus.has_reverb = 0;
 		FMOD_RESULT r;
-		do
+		r = FMOD_System_CreateDSPByType(appwdgt->mus.system, FMOD_DSP_TYPE_ECHO, &(appwdgt->mus.echo));
+		if (r != FMOD_OK)
 		{
-			r = FMOD_Reverb3D_Release(appwdgt->mus.reverb);
-		} while (r != FMOD_OK);
+			g_print("Error while creating echo DSP.\n");
+			return;
+		}
+		r = FMOD_ChannelGroup_AddDSP(appwdgt->mus.master, FMOD_CHANNELCONTROL_DSP_TAIL, appwdgt->mus.echo);
+		if (r != FMOD_OK)
+		{
+			g_print("Error while adding echo DSP.\n");
+			return;
+		}
+		if (appwdgt->spectre.created)
+		{
+			r = FMOD_ChannelGroup_AddDSP(appwdgt->mus.channel, FMOD_CHANNELCONTROL_DSP_TAIL, appwdgt->mus.echo);
+			if (r != FMOD_OK)
+				g_print("Eroor while adding echo DSP to the channel.\n");
+			appwdgt->spectre.has_echo = 1;
+		}
+		appwdgt->mus.has_echo = 1;
 	}
 }

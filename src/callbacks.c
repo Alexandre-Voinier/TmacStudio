@@ -10,21 +10,12 @@ void on_new_btn_activated(GtkMenuItem *btn, Ui *appwdgt)
 {
 	if (appwdgt->mus.musique != NULL)
 	{
-		if (appwdgt->mus.has_reverb)
-		{
-			FMOD_RESULT r;
-			do
-			{
-				r = FMOD_Reverb3D_Release(appwdgt->mus.reverb);
-			} while (r != FMOD_OK);
-		}
-
 		g_source_remove(appwdgt->wave.cursor);
 		appwdgt->mus.isloop = 0;
 		clean_spectre(appwdgt);
 		FMOD_Sound_Release(appwdgt->mus.musique);
 		FMOD_System_Close(appwdgt->mus.system);
-    		FMOD_System_Release(appwdgt->mus.system);
+    	FMOD_System_Release(appwdgt->mus.system);
 
 		gtk_widget_destroy(GTK_WIDGET(appwdgt->edit.grille));
 		GtkWidget *new1 = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);

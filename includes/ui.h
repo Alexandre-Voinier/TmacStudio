@@ -32,6 +32,7 @@ typedef struct Spectre
     int created;
     guint timeout;
     int hasheight;
+    int has_echo;
 }Spectre;
 
 typedef struct Wave
@@ -61,8 +62,8 @@ typedef struct MusStruct
     int ismute;
 	int play1;
 
-    FMOD_REVERB3D *reverb;
-    int has_reverb;
+    FMOD_DSP *echo;
+    int has_echo;
 
 	FMOD_CREATESOUNDEXINFO exinfo;
 	unsigned int datalength;
@@ -154,6 +155,6 @@ void clean_spectre(Ui *appwdgt);
 
 void read_data(Ui *appwdgt);
 
-void Reverb(Ui *appwdgt);
+void Echo(Ui *appwdgt);
 
 #endif
