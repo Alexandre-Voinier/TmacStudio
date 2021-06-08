@@ -375,7 +375,7 @@ void Message(Ui *appwdgt)
 {
 
 	GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(appwdgt->edit.TextS));
-	gtk_text_buffer_set_text(buffer, "Choose a command between:\n    -play\n    -pause\n    -rec\n    -recstop\n    - mute\n    - loop\n    - height\n    - exit\n", 115);
+	gtk_text_buffer_set_text(buffer, "Choose a command between:\n    -play\n    -pause\n    -rec\n    -recstop\n    - mute\n    - loop\n    - height\n    - echo\n    - exit\n", 126);
 	g_source_remove(appwdgt->mus.save);
 }
 
@@ -445,9 +445,9 @@ void on_entry_activated(GtkWidget *entry, Ui *appwdgt)
 	else if (Compare((char*)(chaine), "echo", 4) == 0)
 	{
 		if (appwdgt->mus.has_echo)
-			gtk_text_buffer_set_text(buffer, "The echo is off now.", 22);
+			gtk_text_buffer_set_text(buffer, "The echo is off now.", 20);
 		else
-			gtk_text_buffer_set_text(buffer, "The echo is on now.", 21);
+			gtk_text_buffer_set_text(buffer, "The echo is on now.", 19);
 
 		Echo(appwdgt);
 	}
@@ -508,7 +508,7 @@ void Attach(Ui *appwdgt)
 	GtkWidget *TextS = gtk_text_view_new();
 	appwdgt->edit.TextS = TextS;
 	GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(appwdgt->edit.TextS));
-	gtk_text_buffer_set_text(buffer, "Choose a command between:\n    -play\n    -pause\n    -rec\n    -recstop\n    - mute\n    - loop\n    - height\n    - exit\n", 115);
+	gtk_text_buffer_set_text(buffer, "Choose a command between:\n    -play\n    -pause\n    -rec\n    -recstop\n    - mute\n    - loop\n    - height\n    - echo\n    - exit\n", 126);
 	GtkWidget *entry = gtk_entry_new();
 	g_signal_connect(entry, "activate", G_CALLBACK(on_entry_activated), appwdgt);
 	
