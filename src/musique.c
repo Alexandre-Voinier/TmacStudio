@@ -166,7 +166,7 @@ void Play(Ui *appwdgt)
 		if (appwdgt->mus.has_echo)
 		{
 			appwdgt->mus.has_echo = 0;
-			FMOD_ChannelGroup(appwdgt->mus.master, appwdgt->mus.echo);
+			FMOD_ChannelGroup_RemoveDSP(appwdgt->mus.master, appwdgt->mus.echo);
 			FMOD_DSP_Release(appwdgt->mus.echo);
 			Echo(appwdgt);
 		}
@@ -449,7 +449,7 @@ void on_entry_activated(GtkWidget *entry, Ui *appwdgt)
 		else
 			gtk_text_buffer_set_text(buffer, "The echo is on now.", 21);
 
-		Echo(appwdgt)
+		Echo(appwdgt);
 	}
 	
 	gtk_editable_delete_text(GTK_EDITABLE(entry), 0, -1); // ça ça clean le texte tapé dans l'entré
@@ -694,7 +694,7 @@ void clean_spectre(Ui *appwdgt)
 		appwdgt->spectre.hasheight = 0;
 		if (appwdgt->spectre.has_echo)
 		{
-			FMOD_Channel_RemoveDSP(appwdgt.mus.channel, appwdgt->mus.echo);
+			FMOD_Channel_RemoveDSP(appwdgt->mus.channel, appwdgt->mus.echo);
 			appwdgt->spectre.has_echo = 0;
 		}
 	}
@@ -771,7 +771,7 @@ void Echo(Ui *appwdgt)
 		}
 		if (appwdgt->spectre.created)
 		{
-			r = FMOD_ChannelGroup_AddDSP(appwdgt->mus.channel, FMOD_CHANNELCONTROL_DSP_TAIL, appwdgt->mus.echo);
+			r = FMOD_ChannelG_AddDSP(appwdgt->mus.channel, FMOD_CHANNELCONTROL_DSP_TAIL, appwdgt->mus.echo);
 			if (r != FMOD_OK)
 				g_print("Eroor while adding echo DSP to the channel.\n");
 			appwdgt->spectre.has_echo = 1;
