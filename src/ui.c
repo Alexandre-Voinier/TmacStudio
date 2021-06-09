@@ -176,12 +176,14 @@ void init_musStruct(Ui *appwdgt)
 	appwdgt->mus.fd = NULL;
 	appwdgt->mus.datalength = 0;
 	appwdgt->mus.soundlength = 0;
-	appwdgt->mus.height = NULL;
 	appwdgt->spectre.created = 0;
-	appwdgt->mus.coeff = 1;	
-	appwdgt->spectre.hasheight = 0;
 	appwdgt->mus.play1 = 1;
   appwdgt->mus.ismute = 0;
+
+  // Variables pour la HAUTEUR
+  appwdgt->spectre.hasheight = 0;
+  appwdgt->mus.coeff = 1;
+  appwdgt->mus.height = NULL;
 
   // Variables pour l'ECHO
   appwdgt->spectre.has_echo = 0;
@@ -192,6 +194,5 @@ void init_musStruct(Ui *appwdgt)
   appwdgt->spectre.has_reverb = 0;
   appwdgt->mus.has_reverb = 0;
   appwdgt->mus.reverb = NULL;
-
 }
 

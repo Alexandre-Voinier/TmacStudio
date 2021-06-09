@@ -758,7 +758,6 @@ void read_data(Ui *appwdgt)
 		g_print("problème sur Getlength\n");
 
 	appwdgt->wave.sound_length_s = appwdgt->wave.sound_length_s*0.001f;
-
 	appwdgt->wave.tab = malloc(appwdgt->wave.sound_length_pcm_bytes*sizeof(char));
 	if (appwdgt->wave.tab == NULL)
 		g_print("ça a pas marché le malloc\n");
@@ -769,7 +768,7 @@ void read_data(Ui *appwdgt)
         if (result!=FMOD_OK)
                 g_print("problème sur le readdata\n");
 	
-	for (int i = 0; i<appwdgt->wave.sound_length_pcm_bytes; i++)
+	for (int i = 0; i < appwdgt->wave.sound_length_pcm_bytes; i++)
         {
                 if (i<appwdgt->wave.r)
                 {
@@ -831,7 +830,7 @@ void Echo(Ui *appwdgt)
 
 void Reverb(Ui *appwdgt)
 {
-	if (appwdgt->mus.has_echo)
+	if (appwdgt->mus.has_reverb)
 	{
 		FMOD_RESULT r;
 		r = FMOD_ChannelGroup_RemoveDSP(appwdgt->mus.master, appwdgt->mus.reverb);
