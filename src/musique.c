@@ -830,7 +830,7 @@ void Echo(Ui *appwdgt)
 
 void Reverb(Ui *appwdgt)
 {
-	if (appwdgt->mus.has_re)
+	if (appwdgt->mus.has_reverb)
 	{
 		FMOD_RESULT r;
 		r = FMOD_ChannelGroup_RemoveDSP(appwdgt->mus.master, appwdgt->mus.reverb);
