@@ -830,7 +830,7 @@ void Echo(Ui *appwdgt)
 
 void Reverb(Ui *appwdgt)
 {
-	if (appwdgt->mus.has_reverb)
+	if (appwdgt->mus.has_re)
 	{
 		FMOD_RESULT r;
 		r = FMOD_ChannelGroup_RemoveDSP(appwdgt->mus.master, appwdgt->mus.reverb);
@@ -872,6 +872,7 @@ void Reverb(Ui *appwdgt)
 				g_print("Error while adding reverb DSp to the channel.\n");
 			appwdgt->spectre.has_reverb = 1;	
 		}
+		FMOD_DSP_SetParameterFloat(appwdgt->mus.reverb, FMOD_DSP_SFXREVERB_WETLEVEL,  -11.3f);
 		appwdgt->mus.has_reverb = 1;
 	}
 }
