@@ -872,18 +872,18 @@ void Reverb(Ui *appwdgt)
 				g_print("Error while adding reverb DSp to the channel.\n");
 			appwdgt->spectre.has_reverb = 1;	
 		}
-		FMOD_DSP_SetParameterFloat(appwdgt->mus.reverb, FMOD_DSP_SFXREVERB_DECAYTIME,  1500);
-		FMOD_DSP_SetParameterFloat(appwdgt->mus.reverb, FMOD_DSP_SFXREVERB_EARLYDELAY,  7);
-		FMOD_DSP_SetParameterFloat(appwdgt->mus.reverb, FMOD_DSP_SFXREVERB_LATEDELAY,  11);
+		FMOD_DSP_SetParameterFloat(appwdgt->mus.reverb, FMOD_DSP_SFXREVERB_DECAYTIME,  10000);
+		FMOD_DSP_SetParameterFloat(appwdgt->mus.reverb, FMOD_DSP_SFXREVERB_EARLYDELAY,  20);
+		FMOD_DSP_SetParameterFloat(appwdgt->mus.reverb, FMOD_DSP_SFXREVERB_LATEDELAY,  30);
 		FMOD_DSP_SetParameterFloat(appwdgt->mus.reverb, FMOD_DSP_SFXREVERB_HFREFERENCE,  5000);
-		FMOD_DSP_SetParameterFloat(appwdgt->mus.reverb, FMOD_DSP_SFXREVERB_HFDECAYRATIO,  10);
+		FMOD_DSP_SetParameterFloat(appwdgt->mus.reverb, FMOD_DSP_SFXREVERB_HFDECAYRATIO,  23);
 		FMOD_DSP_SetParameterFloat(appwdgt->mus.reverb, FMOD_DSP_SFXREVERB_DIFFUSION,  100);
 		FMOD_DSP_SetParameterFloat(appwdgt->mus.reverb, FMOD_DSP_SFXREVERB_DENSITY,  100);
 		FMOD_DSP_SetParameterFloat(appwdgt->mus.reverb, FMOD_DSP_SFXREVERB_LOWSHELFFREQUENCY,  250);
 		FMOD_DSP_SetParameterFloat(appwdgt->mus.reverb, FMOD_DSP_SFXREVERB_LOWSHELFGAIN,  0);
-		FMOD_DSP_SetParameterFloat(appwdgt->mus.reverb, FMOD_DSP_SFXREVERB_HIGHCUT,  500);
-		FMOD_DSP_SetParameterFloat(appwdgt->mus.reverb, FMOD_DSP_SFXREVERB_EARLYLATEMIX,  92);
-		FMOD_DSP_SetParameterFloat(appwdgt->mus.reverb, FMOD_DSP_SFXREVERB_WETLEVEL,  7.0f);
+		FMOD_DSP_SetParameterFloat(appwdgt->mus.reverb, FMOD_DSP_SFXREVERB_HIGHCUT,  3400);
+		FMOD_DSP_SetParameterFloat(appwdgt->mus.reverb, FMOD_DSP_SFXREVERB_EARLYLATEMIX,  72);
+		FMOD_DSP_SetParameterFloat(appwdgt->mus.reverb, FMOD_DSP_SFXREVERB_WETLEVEL,  -7.4f);
 		appwdgt->mus.has_reverb = 1;
 	}
 }
