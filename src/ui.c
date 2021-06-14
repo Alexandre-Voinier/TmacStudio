@@ -71,7 +71,6 @@ void init_splash_screen(Ui *appwdgt)
 
     // We set the options for each
     gtk_window_set_default_size(GTK_WINDOW(window), 589, 589);
-    gtk_window_get_size(GTK_WINDOW(window), 589, 589);
     GdkPixbuf *pic = gdk_pixbuf_new_from_file_at_scale("UI/logo.png",
 	    589, 589, 0, NULL);
     gtk_image_set_from_pixbuf(GTK_IMAGE(image), pic);
