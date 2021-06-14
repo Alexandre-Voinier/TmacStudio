@@ -86,10 +86,6 @@ typedef struct MusStruct
 
 typedef struct Ui
 {
-    // Default parameters
-    size_t default_width;
-    size_t default_height;
-    
     // Builder
     GtkBuilder *builder;
     guint loading;

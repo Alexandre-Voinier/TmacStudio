@@ -10,8 +10,6 @@ int ui()
     gtk_init(NULL, NULL);
 
     Ui *appwdgt = malloc(sizeof(Ui));
-    appwdgt->default_width = 800;
-    appwdgt->default_height = 800;
     
     appwdgt->builder = gtk_builder_new();
     gtk_builder_add_from_file(appwdgt->builder, "UI/ui.glade", NULL);
@@ -72,12 +70,10 @@ void init_splash_screen(Ui *appwdgt)
     g_signal_connect(window, "destroy", G_CALLBACK(on_window_destroy), NULL);
 
     // We set the options for each
-    gtk_window_set_default_size(GTK_WINDOW(window), appwdgt->default_width,
-	    appwdgt->default_height);
-    int width, height;
-    gtk_window_get_size(GTK_WINDOW(window), &width, &height);
-    GdkPixbuf *pic = gdk_pixbuf_new_from_file_at_scale("UI/splashscreen.png",
-	    width, height, 0, NULL);
+    gtk_window_set_default_size(GTK_WINDOW(window), 589, 589);
+    gtk_window_get_size(GTK_WINDOW(window), 589, 589);
+    GdkPixbuf *pic = gdk_pixbuf_new_from_file_at_scale("UI/logo.png",
+	    589, 589, 0, NULL);
     gtk_image_set_from_pixbuf(GTK_IMAGE(image), pic);
     // Save the objects in the struct
     appwdgt->splash.window = window;
@@ -89,8 +85,8 @@ void init_edit_screen(Ui *appwdgt)
     GtkWidget *window;
     window = GTK_WIDGET(gtk_builder_get_object(appwdgt->builder, "EditScreen"));
     g_signal_connect(window, "destroy", G_CALLBACK(on_window_destroy), NULL);
-    gtk_window_set_default_size(GTK_WINDOW(window), appwdgt->default_width,
-	    appwdgt->default_height);
+    gtk_window_set_default_size(GTK_WINDOW(window), 589,
+	    589);
     appwdgt->edit.window = window;
     
     // Get the btns
