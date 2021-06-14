@@ -1,0 +1,8 @@
+Bonjour et bienvenue dans TmacStudio
+
+Pour compiler notre projet rien de plus simple, faite la commande "make".
+Ensuite faite la commande suivante: export LD_LIBRARY_PATH=$(PATH)/fmod/lib:$$LD_LIBRARY_PATH
+En remplacant $(PATH) par le chemin depuis la racine jusqu'à TmacStudio.
+Cela permet à votre ordinateur de savoir où chercher notre librairie.
+
+Voilà tout vous êtes fin prêts pour lancer notre application !
