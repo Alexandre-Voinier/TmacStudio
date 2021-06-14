@@ -414,7 +414,7 @@ void Message(Ui *appwdgt)
 {
 
 	GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(appwdgt->edit.TextS));
-	gtk_text_buffer_set_text(buffer, "Choose a command between:\n    -play\n    -pause\n    -rec\n    -recstop\n    - mute\n    - loop\n    - height\n    - echo\n    - exit\n", 126);
+	gtk_text_buffer_set_text(buffer, "Choose a command between:\n    -play\n    -pause\n    -rec\n    -recstop\n    - mute\n    - loop\n    - height\n    - echo\n    - reverb\n    - exit\n", 139);
 	g_source_remove(appwdgt->mus.save);
 }
 
@@ -557,7 +557,7 @@ void Attach(Ui *appwdgt)
 	GtkWidget *TextS = gtk_text_view_new();
 	appwdgt->edit.TextS = TextS;
 	GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(appwdgt->edit.TextS));
-	gtk_text_buffer_set_text(buffer, "Choose a command between:\n    -play\n    -pause\n    -rec\n    -recstop\n    - mute\n    - loop\n    - height\n    - echo\n    - exit\n", 126);
+	gtk_text_buffer_set_text(buffer, "Choose a command between:\n    -play\n    -pause\n    -rec\n    -recstop\n    - mute\n    - loop\n    - height\n    - echo\n    - reverb\n    - exit\n", 139);
 	GtkWidget *entry = gtk_entry_new();
 	g_signal_connect(entry, "activate", G_CALLBACK(on_entry_activated), appwdgt);
 	
